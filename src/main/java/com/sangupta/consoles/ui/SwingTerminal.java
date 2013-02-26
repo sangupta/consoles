@@ -24,6 +24,8 @@ package com.sangupta.consoles.ui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.Timer;
@@ -79,6 +81,16 @@ public class SwingTerminal {
 		this.hostFrame.setSize(this.renderer.getPreferredSize());
 //		this.hostFrame.setCursor(Cursor.getDefaultCursor());
 //		this.hostFrame.repaint();
+		
+		// add the closing handler for the terminal
+		this.hostFrame.addWindowListener(new WindowAdapter() {
+			
+			@Override
+			public void windowClosing(WindowEvent e) {
+				closeTerminal();
+			}
+			
+		});
 
 		this.hostFrame.setVisible(true);
 		this.hostFrame.pack();
