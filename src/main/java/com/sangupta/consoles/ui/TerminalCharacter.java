@@ -23,12 +23,37 @@ package com.sangupta.consoles.ui;
 
 import java.awt.Color;
 
+/**
+ * Holds information about one rendered character.
+ * 
+ * @author sangupta
+ *
+ */
 public class TerminalCharacter {
 	
-	public char character;
+	public char character = ' ';
 	
 	public Color foreground;
 	
 	public Color background;
+	
+	/**
+	 * Default constructor
+	 * 
+	 */
+	public TerminalCharacter() {
+		
+	}
+	
+	/**
+	 * Convenience constructor
+	 * 
+	 * @param character
+	 */
+	public TerminalCharacter(char character, Color foreground, Color background) {
+		this.character = character;
+		this.foreground = foreground;
+		this.background = background;
+	}
 
 }

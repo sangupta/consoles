@@ -34,12 +34,12 @@ public class GUIConsole implements IConsole {
 		
 	}
 
-	public void print(String string) throws IOException {
+	public void print(String string) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void println(String string) throws IOException {
+	public void println(String string) {
 		// TODO Auto-generated method stub
 		
 	}

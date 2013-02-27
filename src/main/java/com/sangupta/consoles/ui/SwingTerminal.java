@@ -50,6 +50,10 @@ public class SwingTerminal {
 	
 	private final Renderer renderer;
 	
+	private final TerminalCharacter emptyCharacter;
+	
+	private final TerminalCharacter screenView[][];
+	
 	/**
 	 * Timer that is used to show/hide cursor to achieve cursor blinking
 	 * effect
@@ -67,20 +71,21 @@ public class SwingTerminal {
 
 	public SwingTerminal(int defaultColumns, int defaultRows) {
 		this.hostFrame = new JFrame();
-		this.renderer = new Renderer(defaultColumns, defaultRows);
 		this.cursorBlinkTimer = new Timer(500, new CursorBlinkAction());
+		
+		this.emptyCharacter = new TerminalCharacter();
+		this.screenView = new TerminalCharacter[defaultRows][defaultColumns];
+		
+		this.renderer = new Renderer(defaultColumns, defaultRows, this.screenView);
 		
 		// initialize
 		this.hostFrame.getContentPane().add(this.renderer);
 		this.hostFrame.pack();
 		
 		this.hostFrame.setLocationByPlatform(true);
-//		this.hostFrame.setBackground(BACKGROUND_COLOR);
-//		this.hostFrame.setForeground(FOREGROUND_COLOR);
+		this.hostFrame.setResizable(false);
 
 		this.hostFrame.setSize(this.renderer.getPreferredSize());
-//		this.hostFrame.setCursor(Cursor.getDefaultCursor());
-//		this.hostFrame.repaint();
 		
 		// add the closing handler for the terminal
 		this.hostFrame.addWindowListener(new WindowAdapter() {
@@ -103,6 +108,56 @@ public class SwingTerminal {
 	
 	public void setTitle(String title) {
 		this.hostFrame.setTitle(title);
+	}
+	
+	public void writeString(String string) {
+		if(string == null) {
+			return;
+		}
+		
+		int length = string.length();
+		char[] chars = string.toCharArray();
+		for(int index = 0; index < length; index++) {
+			this.screenView[0][index] = new TerminalCharacter(chars[index], FOREGROUND_COLOR, BACKGROUND_COLOR);
+		}
+		
+		this.refreshRenderer();
+	}
+	
+	/**
+	 * Clear this terminal. This basically means that we need to render the empty
+	 * character in the entire screen space.
+	 * 
+	 */
+	public void clearTerminal() {
+		this.emptyCharacter.background = BACKGROUND_COLOR;
+		this.emptyCharacter.foreground = FOREGROUND_COLOR;
+		this.emptyCharacter.character = ' ';
+		
+		for(int row = 0; row < this.screenView.length; row++) {
+			for(int column = 0; column < this.screenView[row].length; column++) {
+				this.screenView[row][column] = this.emptyCharacter;
+			}
+		}
+		
+		this.moveCursor(0, 0);
+	}
+	
+	/**
+	 * Move the cursor to the designated position on screen.
+	 * 
+	 * @param row
+	 * @param column
+	 */
+	public void moveCursor(int row, int column) {
+		
+	}
+	
+	/**
+	 * Refresh the internal renderer
+	 */
+	private void refreshRenderer() {
+		this.renderer.repaint();
 	}
 
 	// Other included classes follow

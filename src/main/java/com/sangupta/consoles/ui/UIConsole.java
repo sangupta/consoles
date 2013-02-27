@@ -43,16 +43,14 @@ public class UIConsole implements IConsole {
 	}
 
 	public void clearScreen() {
-		// TODO Auto-generated method stub
-		
+		this.terminal.clearTerminal();
 	}
 
-	public void print(String string) throws IOException {
-		// TODO Auto-generated method stub
-		
+	public void print(String string) {
+		this.terminal.writeString(string);
 	}
 
-	public void println(String string) throws IOException {
+	public void println(String string) {
 		// TODO Auto-generated method stub
 		
 	}

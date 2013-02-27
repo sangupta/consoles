@@ -47,7 +47,7 @@ public interface IConsole extends Flushable {
 	 * 
 	 * @param string
 	 */
-	public void print(String string) throws IOException;
+	public void print(String string);
 	
 	/**
 	 * Write the message to screen and move to next line
@@ -55,7 +55,7 @@ public interface IConsole extends Flushable {
 	 * 
 	 * @param string
 	 */
-	public void println(String string) throws IOException;
+	public void println(String string);
 	
 	/**
 	 * Read a string from the console

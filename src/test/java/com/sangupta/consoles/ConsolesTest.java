@@ -33,14 +33,11 @@ public class ConsolesTest {
 		IConsole console = Consoles.getConsole(ConsoleType.BestEffort);
 		System.out.println("Console: " + console);
 		
-		console.setWindowTitle("Hello World!");
+		console.setWindowTitle("My Console");
+		console.print("Hello World!");
 		
 		String line = console.readLine();
 		System.out.println("Line: " + line);
-		
-//		Thread.sleep(5000);
-//		
-//		console.shutdown();
 	}
 
 }
