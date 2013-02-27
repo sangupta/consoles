@@ -38,20 +38,51 @@ import javax.swing.Timer;
  */
 public class SwingTerminal {
 	
+	/**
+	 * Number of default columns in a terminal
+	 */
 	private static final int DEFAULT_COLUMNS = 80;
 	
+	/**
+	 * Number of default rows in a terminal
+	 */
 	private static final int DEFAULT_ROWS = 25;
 	
+	/**
+	 * Default background color for a terminal
+	 */
 	private static final Color BACKGROUND_COLOR = new Color(0, 0, 0);
 	
+	/**
+	 * Default foreground color for a terminal
+	 */
 	private static final Color FOREGROUND_COLOR = new Color(255, 255, 255);
 	
+	/**
+	 * Reference to the internal {@link JFrame} instance.
+	 */
 	private final JFrame hostFrame;
 	
+	/**
+	 * Reference to the internal {@link Renderer} instance. The renderer
+	 * picks up the screen view and displays in the current frame instance.
+	 * The renderer is responsible to display one screen-size of information.
+	 * This screen-view is provided by this {@link SwingTerminal} instance.
+	 * 
+	 */
 	private final Renderer renderer;
 	
+	/**
+	 * An instance of the empty character represented by a <b>SPACE</b> character
+	 * in the currently set foreground/background color.
+	 * 
+	 */
 	private final TerminalCharacter emptyCharacter;
 	
+	/**
+	 * Holds one screen-view of information for this console.
+	 * 
+	 */
 	private final TerminalCharacter screenView[][];
 	
 	/**
@@ -65,10 +96,24 @@ public class SwingTerminal {
 	 */
 	private boolean cursorBlinkVisible = false;
 	
+	/**
+	 * Default constructor - uses the default number of rows and columns
+	 * to construct and instance.
+	 * 
+	 */
 	public SwingTerminal() {
 		this(DEFAULT_COLUMNS, DEFAULT_ROWS);
 	}
 
+	/**
+	 * Construct an instance of Swing based terminal instance with the given
+	 * number of rows and columns. The pixel-size of the instance is obtained
+	 * by the height/width of a character in the font associated with the
+	 * renderer instance.
+	 * 
+	 * @param defaultColumns
+	 * @param defaultRows
+	 */
 	public SwingTerminal(int defaultColumns, int defaultRows) {
 		this.hostFrame = new JFrame();
 		this.cursorBlinkTimer = new Timer(500, new CursorBlinkAction());
@@ -101,16 +146,46 @@ public class SwingTerminal {
 		this.hostFrame.pack();
 	}
 	
+	/**
+	 * Close this terminal and dispose of all associated resources.
+	 * 
+	 */
 	public void closeTerminal() {
 		this.hostFrame.setVisible(false);
 		this.hostFrame.dispose();
 	}
 	
+	/**
+	 * Set the title of the window being used.
+	 * 
+	 * @param title
+	 */
 	public void setTitle(String title) {
 		this.hostFrame.setTitle(title);
 	}
 	
+	/**
+	 * Write a string to the terminal and repaint.
+	 * 
+	 * @param string
+	 */
 	public void writeString(String string) {
+		if(string == null) {
+			return;
+		}
+
+		this.write(string);
+		this.refresh();
+	}
+	
+	/**
+	 * Write a string to the renderer. This will not repaint the
+	 * renderer. Method {@link SwingTerminal#refresh()} must be called
+	 * to explicitly make the string visible.
+	 * 
+	 * @param string
+	 */
+	public void write(String string) {
 		if(string == null) {
 			return;
 		}
@@ -120,8 +195,6 @@ public class SwingTerminal {
 		for(int index = 0; index < length; index++) {
 			this.screenView[0][index] = new TerminalCharacter(chars[index], FOREGROUND_COLOR, BACKGROUND_COLOR);
 		}
-		
-		this.refreshRenderer();
 	}
 	
 	/**
@@ -156,7 +229,7 @@ public class SwingTerminal {
 	/**
 	 * Refresh the internal renderer
 	 */
-	private void refreshRenderer() {
+	public void refresh() {
 		this.renderer.repaint();
 	}
 

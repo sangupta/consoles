@@ -36,12 +36,22 @@ import com.sangupta.consoles.IConsole;
  */
 public class UIConsole implements IConsole {
 	
-	private final SwingTerminal terminal;
+	/**
+	 * Reference to the internal {@link SwingTerminal} instance.
+	 * 
+	 */
+	protected final SwingTerminal terminal;
 	
+	/**
+	 * Default constructor
+	 */
 	public UIConsole() {
 		this.terminal = new SwingTerminal();
 	}
 
+	/**
+	 * Clear the screen
+	 */
 	public void clearScreen() {
 		this.terminal.clearTerminal();
 	}
@@ -51,22 +61,20 @@ public class UIConsole implements IConsole {
 	}
 
 	public void println(String string) {
-		// TODO Auto-generated method stub
-		
+		this.terminal.write(string);
+		this.terminal.write("\n");
+		this.terminal.refresh();
 	}
 
 	public String readLine() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public char[] readPassword() throws IOException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public char[] readPassword(char mask) throws IOException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -79,17 +87,14 @@ public class UIConsole implements IConsole {
 	}
 
 	public Writer getOutputStream() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public InputStream getInputStream() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void flush() throws IOException {
-		// TODO Auto-generated method stub
 		
 	}
 
