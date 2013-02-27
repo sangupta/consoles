@@ -26,10 +26,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.ScreenPosition;
 
 /**
@@ -103,6 +106,8 @@ public class SwingTerminal {
 	 */
 	private final ScreenPosition cursorPosition;
 	
+	private final Queue<InputKey> inputKeys;
+	
 	/**
 	 * Mutex lock to make sure that only one thread changes the screen
 	 * display at one time. Used when we are writing to the terminal, 
@@ -138,13 +143,16 @@ public class SwingTerminal {
 		this.renderer = new Renderer(defaultColumns, defaultRows, this.screenView);
 		this.cursorPosition = new ScreenPosition();
 		
+		this.inputKeys = new ConcurrentLinkedQueue<InputKey>();
+		
 		// initialize
 		this.hostFrame.getContentPane().add(this.renderer);
 		this.hostFrame.pack();
 		
+		this.hostFrame.addKeyListener(new InputKeyListener(this.inputKeys));
+		
 		this.hostFrame.setLocationByPlatform(true);
 		this.hostFrame.setResizable(false);
-
 		this.hostFrame.setSize(this.renderer.getPreferredSize());
 		
 		// add the closing handler for the terminal
@@ -194,13 +202,30 @@ public class SwingTerminal {
 	}
 	
 	/**
+	 * Write a character to the terminal and repaint.
+	 * 
+	 * @param ch
+	 */
+	public void writeChar(char ch) {
+		if(ch == 0) {
+			return;
+		}
+		
+		this.write(ch);
+		this.refresh();
+	}
+	
+	/**
 	 * Write a string to the renderer. This will not repaint the
 	 * renderer. Method {@link SwingTerminal#refresh()} must be called
 	 * to explicitly make the string visible.
 	 * 
+	 * External callees should use the public methods as exposed than
+	 * using this method. 
+	 * 
 	 * @param string
 	 */
-	public void write(String string) {
+	void write(String string) {
 		if(string == null) {
 			return;
 		}
@@ -219,7 +244,31 @@ public class SwingTerminal {
 					col = 0;
 					row++;
 				}
-				
+			}
+			
+			this.cursorPosition.setPosition(row, col);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param ch
+	 */
+	void write(char ch) {
+		if(ch == 0) {
+			return;
+		}
+		
+		synchronized (CHANGE_MUTEX) {
+			int col = this.cursorPosition.getColumn();
+			int row = this.cursorPosition.getRow();
+			
+			this.screenView[row][col++] = new TerminalCharacter(ch, FOREGROUND_COLOR, BACKGROUND_COLOR);
+
+			// check for next line
+			if(col == this.DEFAULT_COLUMNS) {
+				col = 0;
+				row++;
 			}
 			
 			this.cursorPosition.setPosition(row, col);
@@ -262,6 +311,10 @@ public class SwingTerminal {
 	 */
 	public void refresh() {
 		this.renderer.repaint();
+	}
+	
+	public InputKey readKey() {
+		return this.inputKeys.poll();
 	}
 
 	// Other included classes follow

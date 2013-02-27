@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.Writer;
 
 import com.sangupta.consoles.IConsole;
+import com.sangupta.consoles.core.InputKey;
 
 /**
  * An implementation of the UI console. Mimicks the default shell-based consoles
@@ -52,48 +53,110 @@ public class UIConsole implements IConsole {
 	/**
 	 * Clear the screen
 	 */
+	@Override
 	public void clearScreen() {
 		this.terminal.clearTerminal();
 	}
 
+	/**
+	 * 
+	 */
+	@Override
 	public void print(String string) {
 		this.terminal.writeString(string);
 	}
 
+	/**
+	 * 
+	 */
+	@Override
 	public void println(String string) {
 		this.terminal.write(string);
 		this.terminal.write("\n");
 		this.terminal.refresh();
 	}
+	
+	/**
+	 * 
+	 */
+	@Override
+	public void print(char ch) {
+		this.terminal.writeChar(ch);
+	}
+	
+	/**
+	 * 
+	 */
+	@Override
+	public char readChar() {
+		InputKey key = null;
+		while(key == null) {
+			key = this.terminal.readKey();
+		}
+		
+		return key.ch;
+	}
 
+	/**
+	 * 
+	 */
+	@Override
 	public String readLine() {
 		return null;
 	}
 
+	/**
+	 * 
+	 */
+	@Override
 	public char[] readPassword() throws IOException {
 		return null;
 	}
 
+	/**
+	 * 
+	 */
+	@Override
 	public char[] readPassword(char mask) throws IOException {
 		return null;
 	}
 
+	/**
+	 * 
+	 */
+	@Override
 	public void setWindowTitle(String title) {
 		this.terminal.setTitle(title);
 	}
 
+	/**
+	 * 
+	 */
+	@Override
 	public void shutdown() {
 		this.terminal.closeTerminal();
 	}
 
+	/**
+	 * 
+	 */
+	@Override
 	public Writer getOutputStream() {
 		return null;
 	}
 
+	/**
+	 * 
+	 */
+	@Override
 	public InputStream getInputStream() {
 		return null;
 	}
 
+	/**
+	 * 
+	 */
+	@Override
 	public void flush() throws IOException {
 		
 	}

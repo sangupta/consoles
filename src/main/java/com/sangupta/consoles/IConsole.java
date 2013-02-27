@@ -43,6 +43,13 @@ public interface IConsole extends Flushable {
 	public void clearScreen();
 	
 	/**
+	 * Write the character to the screen.
+	 * 
+	 * @param ch
+	 */
+	public void print(char ch);
+	
+	/**
 	 * Write the message to screen
 	 * 
 	 * @param string
@@ -58,7 +65,14 @@ public interface IConsole extends Flushable {
 	public void println(String string);
 	
 	/**
-	 * Read a string from the console
+	 * Read a character from the console.
+	 * 
+	 * @return
+	 */
+	public char readChar();
+	
+	/**
+	 * Read a string from the console.
 	 * 
 	 * @return
 	 */

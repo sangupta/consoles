@@ -33,6 +33,10 @@ public class GUIConsole implements IConsole {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public void print(char ch) {
+		
+	}
 
 	public void print(String string) {
 		// TODO Auto-generated method stub
@@ -42,6 +46,10 @@ public class GUIConsole implements IConsole {
 	public void println(String string) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public char readChar() {
+		return 0;
 	}
 
 	public String readLine() {
