@@ -30,6 +30,8 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import com.sangupta.consoles.core.ScreenPosition;
+
 /**
  * Java Swing based terminal that uses {@link JFrame} to render the terminal.
  * 
@@ -97,6 +99,18 @@ public class SwingTerminal {
 	private boolean cursorBlinkVisible = false;
 	
 	/**
+	 * Holds the current position of the cursor
+	 */
+	private final ScreenPosition cursorPosition;
+	
+	/**
+	 * Mutex lock to make sure that only one thread changes the screen
+	 * display at one time. Used when we are writing to the terminal, 
+	 * clearing the terminal, or resizing the terminal. 
+	 */
+	private final Object CHANGE_MUTEX = new Object();
+	
+	/**
 	 * Default constructor - uses the default number of rows and columns
 	 * to construct and instance.
 	 * 
@@ -122,6 +136,7 @@ public class SwingTerminal {
 		this.screenView = new TerminalCharacter[defaultRows][defaultColumns];
 		
 		this.renderer = new Renderer(defaultColumns, defaultRows, this.screenView);
+		this.cursorPosition = new ScreenPosition();
 		
 		// initialize
 		this.hostFrame.getContentPane().add(this.renderer);
@@ -190,10 +205,24 @@ public class SwingTerminal {
 			return;
 		}
 		
-		int length = string.length();
-		char[] chars = string.toCharArray();
-		for(int index = 0; index < length; index++) {
-			this.screenView[0][index] = new TerminalCharacter(chars[index], FOREGROUND_COLOR, BACKGROUND_COLOR);
+		synchronized (CHANGE_MUTEX) {
+			int col = this.cursorPosition.getColumn();
+			int row = this.cursorPosition.getRow();
+			
+			int length = string.length();
+			char[] chars = string.toCharArray();
+			for(int index = 0; index < length; index++) {
+				this.screenView[row][col++] = new TerminalCharacter(chars[index], FOREGROUND_COLOR, BACKGROUND_COLOR);
+				
+				// check for next line
+				if(col == this.DEFAULT_COLUMNS) {
+					col = 0;
+					row++;
+				}
+				
+			}
+			
+			this.cursorPosition.setPosition(row, col);
 		}
 	}
 	
@@ -207,13 +236,15 @@ public class SwingTerminal {
 		this.emptyCharacter.foreground = FOREGROUND_COLOR;
 		this.emptyCharacter.character = ' ';
 		
-		for(int row = 0; row < this.screenView.length; row++) {
-			for(int column = 0; column < this.screenView[row].length; column++) {
-				this.screenView[row][column] = this.emptyCharacter;
+		synchronized (CHANGE_MUTEX) {
+			for(int row = 0; row < this.screenView.length; row++) {
+				for(int column = 0; column < this.screenView[row].length; column++) {
+					this.screenView[row][column] = this.emptyCharacter;
+				}
 			}
+			
+			this.moveCursor(0, 0);
 		}
-		
-		this.moveCursor(0, 0);
 	}
 	
 	/**
