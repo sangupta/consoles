@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.Writer;
 
 import com.sangupta.consoles.IConsole;
-import com.sangupta.consoles.core.InputKey;
 
 /**
  * An implementation of the UI console. Mimicks the default shell-based consoles
@@ -89,12 +88,7 @@ public class UIConsole implements IConsole {
 	 */
 	@Override
 	public char readChar() {
-		InputKey key = null;
-		while(key == null) {
-			key = this.terminal.readKey();
-		}
-		
-		return key.ch;
+		return this.terminal.getKey().ch;
 	}
 
 	/**
@@ -102,7 +96,7 @@ public class UIConsole implements IConsole {
 	 */
 	@Override
 	public String readLine() {
-		return null;
+		return this.terminal.readString(true, (char) 0);
 	}
 
 	/**
@@ -110,7 +104,7 @@ public class UIConsole implements IConsole {
 	 */
 	@Override
 	public char[] readPassword() throws IOException {
-		return null;
+		return this.terminal.readString(false, (char) 0).toCharArray();
 	}
 
 	/**
@@ -118,7 +112,7 @@ public class UIConsole implements IConsole {
 	 */
 	@Override
 	public char[] readPassword(char mask) throws IOException {
-		return null;
+		return this.terminal.readString(false, mask).toCharArray();
 	}
 
 	/**
@@ -156,9 +150,7 @@ public class UIConsole implements IConsole {
 	/**
 	 * 
 	 */
-	@Override
 	public void flush() throws IOException {
-		
 	}
 
 }

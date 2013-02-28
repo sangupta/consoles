@@ -53,12 +53,16 @@ public class InputKeyListener implements KeyListener {
 			ch = (char)('a' - 1 + ch);
 			
 			this.inputKeys.add(new InputKey(ch, altKeyPressed, ctrlKeyPressed));
+		} else {
+			this.inputKeys.add(new InputKey(e.getKeyChar()));
 		}
+		
+//		System.out.println((int) e.getKeyChar() + ":" + e.getKeyChar());
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		this.inputKeys.add(new InputKey(e.getKeyChar()));
+		// do nothing
 	}
 
 	@Override

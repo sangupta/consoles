@@ -115,7 +115,7 @@ public class SwingTerminal {
 	/**
 	 * Holds the list of key-strokes as they keep coming in
 	 */
-	private final Queue<InputKey> inputKeys;
+	protected final Queue<InputKey> inputKeys;
 	
 	/**
 	 * Mutex lock to make sure that only one thread changes the screen
@@ -123,6 +123,12 @@ public class SwingTerminal {
 	 * clearing the terminal, or resizing the terminal. 
 	 */
 	private final Object CHANGE_MUTEX = new Object();
+	
+	/**
+	 * Signals the keyboard input thread to break immediately as 
+	 * we are closing down.
+	 */
+	private boolean closingTerminal = false;
 	
 	/**
 	 * Default constructor - uses the default number of rows and columns
@@ -169,6 +175,7 @@ public class SwingTerminal {
 			
 			@Override
 			public void windowClosing(WindowEvent e) {
+				closingTerminal = true;
 				closeTerminal();
 			}
 			
@@ -194,6 +201,87 @@ public class SwingTerminal {
 	 */
 	public void setTitle(String title) {
 		this.hostFrame.setTitle(title);
+	}
+	
+	/**
+	 * Method that reads a string from the terminal and sends it back.
+	 * 
+	 */
+	public String readString(boolean echo, char mask) {
+		final StringBuilder builder = new StringBuilder();
+		
+		InputKey key;
+		while(true) {
+			key = this.getKey();
+			
+			if(this.closingTerminal) {
+				break;
+			}
+			
+			// ENTER
+			if(key.ch == '\n' && !key.altPressed && !key.ctrlPressed) {
+				int currentRow = this.cursorPosition.getRow();
+				currentRow++;
+				if(currentRow == this.DEFAULT_ROWS) {
+					scrollUp();
+					currentRow--;
+				}
+				
+				this.cursorPosition.setPosition(currentRow, 0);
+				break;
+			}
+			
+			// BACKSPACE
+			if(key.ch == 8) {
+				if(builder.length() > 0) {
+					builder.deleteCharAt(builder.length() - 1);
+				}
+				
+				setRelativeChar(0, -1, ' ');
+				continue;
+			}
+			
+			// all well
+			// add the character to string
+			builder.append(key.ch);
+			
+			// display on screen as needed
+			if(echo) {
+				if(mask == 0) {
+					writeChar(key.ch);
+				} else {
+					writeChar(mask);
+				}
+			}
+		}
+		
+		return builder.toString();
+	}
+	
+	/**
+	 * Set the char at position relative to current position to the given
+	 * char. This also sets the current cursor position to the given element.
+	 * 
+	 * @param rows
+	 * @param columns
+	 * @param ch
+	 */
+	void setRelativeChar(int rows, int columns, char ch) {
+		int row = this.cursorPosition.getRow() + rows;
+		int col = this.cursorPosition.getColumn() + columns;
+		
+		while(col < 0) {
+			col = col + this.DEFAULT_COLUMNS;
+			row--;
+		}
+		
+		if(row < 0) {
+			return;
+		}
+		
+		this.screenView[row][col] = new TerminalCharacter(ch, FOREGROUND_COLOR, BACKGROUND_COLOR);
+		this.cursorPosition.setPosition(row, col);
+		this.refresh();
 	}
 	
 	/**
@@ -382,8 +470,35 @@ public class SwingTerminal {
 		this.renderer.repaint();
 	}
 	
+	/**
+	 * Read a key in a non-blocking fashion. If no key is 
+	 * available, returns <code>null</code>.
+	 * 
+	 * @return
+	 */
 	public InputKey readKey() {
 		return this.inputKeys.poll();
+	}
+	
+	/**
+	 * Read a key blockingly. If no key is available, the thread
+	 * will wait till one is available.
+	 * 
+	 * This method will never return a <code>null</code>
+	 * 
+	 * @return
+	 */
+	public InputKey getKey() {
+		InputKey key = null;
+		while(key == null) {
+			if(this.closingTerminal) {
+				break;
+			}
+			
+			key = this.inputKeys.poll();
+		}
+		
+		return key;
 	}
 
 	// Other included classes follow
