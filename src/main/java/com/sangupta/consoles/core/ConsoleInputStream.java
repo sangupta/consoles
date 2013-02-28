@@ -43,7 +43,12 @@ public class ConsoleInputStream extends InputStream {
 
 	@Override
 	public int read() throws IOException {
-		return this.console.readChar();
+		char ch = this.console.readChar();
+		if(ch == 13) {
+			ch = '\n';
+		}
+		this.console.print(ch);
+		return ch;
 	}
 
 }

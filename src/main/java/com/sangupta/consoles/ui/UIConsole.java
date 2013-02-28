@@ -28,6 +28,7 @@ import java.io.Writer;
 import com.sangupta.consoles.IConsole;
 import com.sangupta.consoles.core.ConsoleInputStream;
 import com.sangupta.consoles.core.ConsoleWriter;
+import com.sangupta.consoles.core.InputKey;
 
 /**
  * An implementation of the UI console. Mimicks the default shell-based consoles
@@ -101,7 +102,12 @@ public class UIConsole implements IConsole {
 	 */
 	@Override
 	public char readChar() {
-		return this.terminal.getKey().ch;
+		InputKey key = this.terminal.getKey();
+		if(key != null) {
+			return key.ch;
+		}
+		
+		return (char) 0;
 	}
 
 	/**
