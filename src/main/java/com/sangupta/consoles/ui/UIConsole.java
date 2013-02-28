@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.Writer;
 
 import com.sangupta.consoles.IConsole;
+import com.sangupta.consoles.core.ConsoleInputStream;
 import com.sangupta.consoles.core.ConsoleWriter;
 
 /**
@@ -39,6 +40,8 @@ public class UIConsole implements IConsole {
 	
 	protected final ConsoleWriter consoleWriter;
 	
+	protected final ConsoleInputStream consoleInputStream;
+	
 	/**
 	 * Reference to the internal {@link SwingTerminal} instance.
 	 * 
@@ -51,6 +54,7 @@ public class UIConsole implements IConsole {
 	public UIConsole() {
 		this.terminal = new SwingTerminal();
 		this.consoleWriter = new ConsoleWriter(this);
+		this.consoleInputStream = new ConsoleInputStream(this);
 	}
 
 	/**
@@ -153,13 +157,14 @@ public class UIConsole implements IConsole {
 	 */
 	@Override
 	public InputStream getInputStream() {
-		return null;
+		return this.consoleInputStream;
 	}
 
 	/**
 	 * 
 	 */
 	public void flush() throws IOException {
+		this.consoleWriter.flush();
 	}
 
 }

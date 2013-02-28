@@ -21,33 +21,29 @@
 
 package com.sangupta.consoles.core;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import com.sangupta.consoles.IConsole;
+
 /**
- * Enumeration that defines special keys as present on the
- * keyboard.
+ * An implementation of the {@link InputStream} that works with any
+ * implementation of the {@link IConsole}.
  * 
  * @author sangupta
  *
  */
-public enum SpecialInputKey {
+public class ConsoleInputStream extends InputStream {
 	
-	// arrow keys
-	LeftArrow,
-	RightArrow,
-	UpArrow,
-	DownArrow,
+	protected IConsole console;
 	
-	// insert-block
-	Insert,
-	Delete,
-	Home,
-	End,
-	PageUp,
-	PageDown,
-	
-	// function keys
-	F1, F2, F3, F4,
-	F5, F6, F7, F8,
-	F9, F10,
-	F11, F12;
-	
+	public ConsoleInputStream(IConsole console) {
+		this.console = console;
+	}
+
+	@Override
+	public int read() throws IOException {
+		return this.console.readChar();
+	}
+
 }
