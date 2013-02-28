@@ -39,8 +39,16 @@ import com.sangupta.consoles.core.InputKey;
  */
 public class UIConsole implements IConsole {
 	
+	/**
+	 * A {@link Writer} stream that can be used to output to the
+	 * console.
+	 */
 	protected final ConsoleWriter consoleWriter;
 	
+	/**
+	 * A {@link InputStream} implementation that can be used to read
+	 * from the console.
+	 */
 	protected final ConsoleInputStream consoleInputStream;
 	
 	/**
