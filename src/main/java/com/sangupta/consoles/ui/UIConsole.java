@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.Writer;
 
 import com.sangupta.consoles.IConsole;
+import com.sangupta.consoles.core.ConsoleWriter;
 
 /**
  * An implementation of the UI console. Mimicks the default shell-based consoles
@@ -35,6 +36,8 @@ import com.sangupta.consoles.IConsole;
  *
  */
 public class UIConsole implements IConsole {
+	
+	protected final ConsoleWriter consoleWriter;
 	
 	/**
 	 * Reference to the internal {@link SwingTerminal} instance.
@@ -47,6 +50,7 @@ public class UIConsole implements IConsole {
 	 */
 	public UIConsole() {
 		this.terminal = new SwingTerminal();
+		this.consoleWriter = new ConsoleWriter(this);
 	}
 
 	/**
@@ -63,6 +67,11 @@ public class UIConsole implements IConsole {
 	@Override
 	public void print(String string) {
 		this.terminal.writeString(string);
+	}
+
+	@Override
+	public void print(char[] cbuf, int off, int len) {
+		this.terminal.write(cbuf, off, len);
 	}
 
 	/**
@@ -136,7 +145,7 @@ public class UIConsole implements IConsole {
 	 */
 	@Override
 	public Writer getOutputStream() {
-		return null;
+		return this.consoleWriter;
 	}
 
 	/**

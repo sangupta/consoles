@@ -67,6 +67,14 @@ public class PureConsole implements IConsole {
 			throw new RuntimeException("Unable to write string to the console instance", e);
 		}
 	}
+	
+	public void print(char[] cbuf, int off, int len) {
+		try {
+			this.consoleReader.print(String.valueOf(cbuf, off, len));
+		} catch (IOException e) {
+			throw new RuntimeException("Unable to write string to the console instance", e);
+		}
+	}
 
 	/**
 	 * 

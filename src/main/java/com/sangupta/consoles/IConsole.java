@@ -48,6 +48,15 @@ public interface IConsole extends Flushable {
 	 * @param ch
 	 */
 	public void print(char ch);
+
+	/**
+	 * Write a given character array to console.
+	 * 
+	 * @param cbuf
+	 * @param off
+	 * @param len
+	 */
+	public void print(char[] cbuf, int off, int len);
 	
 	/**
 	 * Write the message to screen
@@ -120,5 +129,5 @@ public interface IConsole extends Flushable {
 	 * @return
 	 */
 	public InputStream getInputStream();
-	
+
 }

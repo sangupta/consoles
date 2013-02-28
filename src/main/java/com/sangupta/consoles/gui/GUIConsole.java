@@ -37,6 +37,10 @@ public class GUIConsole implements IConsole {
 	public void print(char ch) {
 		
 	}
+	
+	public void print(char[] cbuf, int off, int len) {
+		
+	}
 
 	public void print(String string) {
 		// TODO Auto-generated method stub

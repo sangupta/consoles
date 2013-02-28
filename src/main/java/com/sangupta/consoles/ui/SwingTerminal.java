@@ -22,8 +22,6 @@
 package com.sangupta.consoles.ui;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
@@ -237,6 +235,16 @@ public class SwingTerminal {
 			// SPECIAL KEYS
 			if(key.specialKey != null) {
 				
+				switch(key.specialKey) {
+					
+					case LeftArrow:
+						this.setRelativeCursorPosition(0, -1);
+						continue;
+						
+					default:
+						// do nothing
+						break;
+				}
 			}
 			
 			// all well
@@ -265,6 +273,18 @@ public class SwingTerminal {
 	 * @param ch
 	 */
 	void setRelativeChar(int rows, int columns, char ch) {
+		this.setRelativeCursorPosition(rows, columns);
+		this.writeChar(ch);
+		this.setRelativeCursorPosition(0, -1);
+	}
+	
+	/**
+	 * Set relative cursor position
+	 * 
+	 * @param rows
+	 * @param columns
+	 */
+	void setRelativeCursorPosition(int rows, int columns) {
 		int row = this.cursorPosition.getRow() + rows;
 		int col = this.cursorPosition.getColumn() + columns;
 		
@@ -277,7 +297,6 @@ public class SwingTerminal {
 			return;
 		}
 		
-		this.screenView[row][col] = new TerminalCharacter(ch, FOREGROUND_COLOR, BACKGROUND_COLOR);
 		this.cursorPosition.setPosition(row, col);
 		this.refresh();
 	}
@@ -325,15 +344,30 @@ public class SwingTerminal {
 			return;
 		}
 		
+		int length = string.length();
+		char[] chars = string.toCharArray();
+		write(chars, 0, length);
+	}
+	
+	/**
+	 * Write a set of characters to the renderer.
+	 * 
+	 * @param chars
+	 * @param offset
+	 * @param length
+	 */
+	void write(final char[] chars, final int offset, final int length) {
+		if(chars == null) {
+			return;
+		}
+		
+		char charToWrite;
+		
 		synchronized (CHANGE_MUTEX) {
 			int col = this.cursorPosition.getColumn();
 			int row = this.cursorPosition.getRow();
 			
-			int length = string.length();
-			char[] chars = string.toCharArray();
-			char charToWrite;
-
-			for(int index = 0; index < length; index++) {
+			for(int index = offset; index < length; index++) {
 				charToWrite = chars[index];
 				
 				switch(charToWrite) {
@@ -437,10 +471,6 @@ public class SwingTerminal {
 	 * 
 	 */
 	public void clearTerminal() {
-		this.emptyCharacter.background = BACKGROUND_COLOR;
-		this.emptyCharacter.foreground = FOREGROUND_COLOR;
-		this.emptyCharacter.character = ' ';
-		
 		synchronized (CHANGE_MUTEX) {
 			for(int row = 0; row < this.screenView.length; row++) {
 				Arrays.fill(this.screenView[row], this.emptyCharacter);
