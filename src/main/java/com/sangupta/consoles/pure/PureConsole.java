@@ -21,7 +21,6 @@
 
 package com.sangupta.consoles.pure;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -49,9 +48,11 @@ public class PureConsole implements IConsole {
 		}
 	}
 
+	@Override
 	public void clearScreen() {
 		try {
 			this.consoleReader.clearScreen();
+			this.consoleReader.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -60,17 +61,21 @@ public class PureConsole implements IConsole {
 	/**
 	 * 
 	 */
+	@Override
 	public void print(char ch) {
 		try {
 			this.consoleReader.print(Character.toString(ch));
+			this.consoleReader.flush();
 		} catch(IOException e) {
 			throw new RuntimeException("Unable to write string to the console instance", e);
 		}
 	}
 	
+	@Override
 	public void print(char[] cbuf, int off, int len) {
 		try {
 			this.consoleReader.print(String.valueOf(cbuf, off, len));
+			this.consoleReader.flush();
 		} catch (IOException e) {
 			throw new RuntimeException("Unable to write string to the console instance", e);
 		}
@@ -79,9 +84,11 @@ public class PureConsole implements IConsole {
 	/**
 	 * 
 	 */
+	@Override
 	public void print(String string) {
 		try {
 			this.consoleReader.print(string);
+			this.consoleReader.flush();
 		} catch(IOException e) {
 			throw new RuntimeException("Unable to write string to the console instance", e);
 		}
@@ -90,9 +97,11 @@ public class PureConsole implements IConsole {
 	/**
 	 * 
 	 */
+	@Override
 	public void println(String string) {
 		try {
 			this.consoleReader.println(string);
+			this.consoleReader.flush();
 		} catch(IOException e) {
 			throw new RuntimeException("Unable to write string to the console instance", e);
 		}
@@ -103,30 +112,53 @@ public class PureConsole implements IConsole {
 	 */
 	@Override
 	public char readChar() {
-		return 0;
+		try {
+			return (char) this.consoleReader.readCharacter();
+		} catch (IOException e) {
+			throw new RuntimeException("Unable to write string to the console instance", e);
+		}
 	}
 
 	/**
 	 * 
 	 */
+	@Override
 	public String readLine() {
 		try {
 			return this.consoleReader.readLine();
 		} catch(IOException e) {
-			throw new IOError(e);
+			throw new RuntimeException("Unable to write string to the console instance", e);
 		}
 	}
 
 	public char[] readPassword() {
-		return null;
+		try {
+			String line = this.consoleReader.readLine((char) 0);
+			if(line != null) {
+				return line.toCharArray();
+			}
+			
+			return null;
+		} catch(IOException e) {
+			throw new RuntimeException("Unable to write string to the console instance", e);
+		}
 	}
 
-	public char[] readPassword(char mask) {
-		return null;
+	public char[] readPassword(final char mask) {
+		try {
+			String line = this.consoleReader.readLine(mask);
+			if(line != null) {
+				return line.toCharArray();
+			}
+			
+			return null;
+		} catch(IOException e) {
+			throw new RuntimeException("Unable to write string to the console instance", e);
+		}
 	}
 
 	public void setWindowTitle(String title) {
-		// not supported
+		// TODO: throw new RuntimeException("not yet implemented");
 	}
 
 	public void shutdown() {
