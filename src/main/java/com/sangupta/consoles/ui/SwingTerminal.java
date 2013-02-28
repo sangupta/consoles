@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -106,6 +107,9 @@ public class SwingTerminal {
 	 */
 	private final ScreenPosition cursorPosition;
 	
+	/**
+	 * Holds the list of key-strokes as they keep coming in
+	 */
 	private final Queue<InputKey> inputKeys;
 	
 	/**
@@ -244,6 +248,13 @@ public class SwingTerminal {
 					col = 0;
 					row++;
 				}
+				
+				// check if we need to move to next line
+				if(row == this.DEFAULT_ROWS) {
+					// scroll up
+					scrollUp();
+					row--;
+				}
 			}
 			
 			this.cursorPosition.setPosition(row, col);
@@ -271,7 +282,30 @@ public class SwingTerminal {
 				row++;
 			}
 			
+			// check if we need to move to next line
+			if(row == this.DEFAULT_ROWS) {
+				// scroll up
+				scrollUp();
+				row--;
+			}
+			
 			this.cursorPosition.setPosition(row, col);
+		}
+	}
+	
+	/**
+	 * Method that will scroll the window up by one row.
+	 * 
+	 */
+	void scrollUp() {
+		synchronized (CHANGE_MUTEX) {
+			for(int row = 1; row < this.DEFAULT_ROWS; row++) {
+				this.screenView[row - 1] = this.screenView[row];
+			}
+
+			int row = this.DEFAULT_ROWS - 1;
+			this.screenView[row] = new TerminalCharacter[this.DEFAULT_COLUMNS];
+			Arrays.fill(this.screenView[row], this.emptyCharacter);
 		}
 	}
 	
@@ -287,9 +321,7 @@ public class SwingTerminal {
 		
 		synchronized (CHANGE_MUTEX) {
 			for(int row = 0; row < this.screenView.length; row++) {
-				for(int column = 0; column < this.screenView[row].length; column++) {
-					this.screenView[row][column] = this.emptyCharacter;
-				}
+				Arrays.fill(this.screenView[row], this.emptyCharacter);
 			}
 			
 			this.moveCursor(0, 0);
@@ -303,7 +335,8 @@ public class SwingTerminal {
 	 * @param column
 	 */
 	public void moveCursor(int row, int column) {
-		
+		this.cursorPosition.setPosition(row, column);
+		this.refresh();
 	}
 	
 	/**
