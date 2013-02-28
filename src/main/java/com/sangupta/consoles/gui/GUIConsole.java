@@ -29,70 +29,73 @@ import com.sangupta.consoles.IConsole;
 
 public class GUIConsole implements IConsole {
 
+	@Override
 	public void clearScreen() {
-		// TODO Auto-generated method stub
 		
 	}
-	
+
+	@Override
 	public void print(char ch) {
 		
 	}
 	
+	@Override
 	public void print(char[] cbuf, int off, int len) {
 		
 	}
 
+	@Override
 	public void print(String string) {
-		// TODO Auto-generated method stub
 		
 	}
 
+	@Override
 	public void println(String string) {
-		// TODO Auto-generated method stub
 		
 	}
 	
+	@Override
 	public char readChar() {
 		return 0;
 	}
 
+	@Override
 	public String readLine() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public char[] readPassword() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public char[] readPassword(char mask) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public void setWindowTitle(String title) {
-		// TODO Auto-generated method stub
 		
 	}
 
+	@Override
 	public void shutdown() {
-		// TODO Auto-generated method stub
 		
 	}
 
+	@Override
 	public Writer getOutputStream() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public InputStream getInputStream() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public void flush() throws IOException {
-		// TODO Auto-generated method stub
 		
 	}
 

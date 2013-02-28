@@ -131,6 +131,7 @@ public class PureConsole implements IConsole {
 		}
 	}
 
+	@Override
 	public char[] readPassword() {
 		try {
 			String line = this.consoleReader.readLine((char) 0);
@@ -144,6 +145,7 @@ public class PureConsole implements IConsole {
 		}
 	}
 
+	@Override
 	public char[] readPassword(final char mask) {
 		try {
 			String line = this.consoleReader.readLine(mask);
@@ -157,22 +159,27 @@ public class PureConsole implements IConsole {
 		}
 	}
 
+	@Override
 	public void setWindowTitle(String title) {
 		// TODO: throw new RuntimeException("not yet implemented");
 	}
 
+	@Override
 	public void shutdown() {
 		this.consoleReader.shutdown();
 	}
 
+	@Override
 	public Writer getOutputStream() {
 		return this.consoleReader.getOutput();
 	}
 
+	@Override
 	public InputStream getInputStream() {
 		return this.consoleReader.getInput();
 	}
 
+	@Override
 	public void flush() throws IOException {
 		this.consoleReader.flush();
 	}
