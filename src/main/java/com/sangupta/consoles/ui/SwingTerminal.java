@@ -65,6 +65,11 @@ public class SwingTerminal {
 	private static final Color FOREGROUND_COLOR = new Color(255, 255, 255);
 	
 	/**
+	 * Default tab stops, 4 chars per tab
+	 */
+	private static final int TAB_STOP = 4;
+	
+	/**
 	 * Reference to the internal {@link JFrame} instance.
 	 */
 	private final JFrame hostFrame;
@@ -240,8 +245,39 @@ public class SwingTerminal {
 			
 			int length = string.length();
 			char[] chars = string.toCharArray();
+			char charToWrite;
+
 			for(int index = 0; index < length; index++) {
-				this.screenView[row][col++] = new TerminalCharacter(chars[index], FOREGROUND_COLOR, BACKGROUND_COLOR);
+				charToWrite = chars[index];
+				
+				switch(charToWrite) {
+					case '\n':
+						row++;
+						col = 0;
+						break;
+						
+					case '\t':
+						// compute the number of tab stops that we need to add
+						int spaces = TAB_STOP - (col % TAB_STOP);
+						if(spaces == 1) {
+							this.screenView[row][col++] = new TerminalCharacter(' ', FOREGROUND_COLOR, BACKGROUND_COLOR);
+						} else {
+							// TODO: optimize this to prevent recursive call
+							this.cursorPosition.setPosition(row, col);
+							String spaced = "";
+							for(int i = 0; i < spaces; i++) {
+								spaced += " ";
+							}
+							this.write(spaced);
+							
+							col = this.cursorPosition.getColumn();
+							row = this.cursorPosition.getRow();
+						}
+						break;
+						
+					default:
+						this.screenView[row][col++] = new TerminalCharacter(charToWrite, FOREGROUND_COLOR, BACKGROUND_COLOR);
+				}
 				
 				// check for next line
 				if(col == this.DEFAULT_COLUMNS) {
