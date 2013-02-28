@@ -122,7 +122,7 @@ public class UIConsole implements IConsole {
 	 * 
 	 */
 	@Override
-	public char[] readPassword() throws IOException {
+	public char[] readPassword() {
 		return this.terminal.readString(false, (char) 0).toCharArray();
 	}
 
@@ -130,8 +130,8 @@ public class UIConsole implements IConsole {
 	 * 
 	 */
 	@Override
-	public char[] readPassword(char mask) throws IOException {
-		return this.terminal.readString(false, mask).toCharArray();
+	public char[] readPassword(char mask) {
+		return this.terminal.readString(true, mask).toCharArray();
 	}
 
 	/**

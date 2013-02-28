@@ -117,11 +117,11 @@ public class PureConsole implements IConsole {
 		}
 	}
 
-	public char[] readPassword() throws IOException {
+	public char[] readPassword() {
 		return null;
 	}
 
-	public char[] readPassword(char mask) throws IOException {
+	public char[] readPassword(char mask) {
 		return null;
 	}
 

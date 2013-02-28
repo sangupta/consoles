@@ -92,7 +92,7 @@ public interface IConsole extends Flushable {
 	 * 
 	 * @return
 	 */
-	public char[] readPassword() throws IOException;
+	public char[] readPassword();
 	
 	/**
 	 * Read a password from console and mask it with the
@@ -101,7 +101,7 @@ public interface IConsole extends Flushable {
 	 * @param mask
 	 * @return
 	 */
-	public char[] readPassword(char mask) throws IOException;
+	public char[] readPassword(char mask);
 	
 	/**
 	 * Set the title of the window that is open, if we can.

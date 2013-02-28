@@ -61,12 +61,12 @@ public class GUIConsole implements IConsole {
 		return null;
 	}
 
-	public char[] readPassword() throws IOException {
+	public char[] readPassword() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public char[] readPassword(char mask) throws IOException {
+	public char[] readPassword(char mask) {
 		// TODO Auto-generated method stub
 		return null;
 	}
