@@ -49,6 +49,18 @@ public class ScreenPosition {
 		this.column = column;
 	}
 	
+	/**
+	 * Check if the screen position is same as represented by the row, and
+	 * column provided.
+	 * 
+	 * @param row
+	 * @param column
+	 * @return
+	 */
+	public boolean equals(int row, int column) {
+		return this.row == row && this.column == column;
+	}
+	
 	// Usual accessors follow
 
 	/**

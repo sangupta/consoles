@@ -26,9 +26,24 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JComponent;
+import javax.swing.Timer;
 
+import com.sangupta.consoles.core.ScreenPosition;
+
+/**
+ * The class helps render one screen full information of character-map (a 2D array)
+ * onto the JFrame in a monospace font.
+ * 
+ * This class is NOT responsible for anything except rendering via a font - key handling
+ * and other operations should be kept outside this class.
+ *  
+ * @author sangupta
+ *
+ */
 public class Renderer extends JComponent {
 
 	/**
@@ -73,6 +88,12 @@ public class Renderer extends JComponent {
 	private Dimension dimension;
 	
 	/**
+	 * Holds the reference to the cursor position object as sent by the {@link SwingTerminal}.
+	 * 
+	 */
+	private final ScreenPosition cursorPosition;
+	
+	/**
 	 * Reference to the screen view full of information. The exact screen view is kept
 	 * by the parent {@link SwingTerminal} instance.
 	 * 
@@ -80,15 +101,29 @@ public class Renderer extends JComponent {
 	private TerminalCharacter screenView[][];
 	
 	/**
+	 * Timer that is used to show/hide cursor to achieve cursor blinking
+	 * effect
+	 */
+	private final Timer cursorBlinkTimer;
+	
+	/**
+	 * Indicates the current state of cursor blink - visible and invisible
+	 */
+	private boolean cursorBlinkVisible = false;
+	
+	/**
 	 * Create an instance of {@link Renderer} for the given number of rows and columns.
 	 * 
 	 * @param columns
 	 * @param rows
 	 */
-	public Renderer(int columns, int rows, TerminalCharacter screenView[][]) {
+	public Renderer(int columns, int rows, TerminalCharacter screenView[][], ScreenPosition cursorPosition) {
 		this.numColumns = columns;
 		this.numRows = rows;
 		this.screenView = screenView;
+		this.cursorPosition = cursorPosition;
+		this.cursorBlinkTimer = new Timer(500, new CursorBlinkAction());
+		this.cursorBlinkTimer.start();
 	}
 	
 	/**
@@ -111,20 +146,11 @@ public class Renderer extends JComponent {
 	}
 	
 	/**
-	 * Method that repaints the screen at the current cursor position.
-	 * 
-	 */
-	public void repaintCursorPosition() {
-		throw new IllegalStateException("not yet implemented");
-	}
-
-	/**
 	 * Method that redraws the entire screen state.
 	 * 
 	 */
 	@Override
 	protected void paintComponent(Graphics g) {
-		try {
 		final Graphics2D graphics2D = (Graphics2D) g.create();
 		
 		// build up the instance
@@ -141,8 +167,16 @@ public class Renderer extends JComponent {
 				
 				if(currentChar != null) {
 					charString = Character.toString(currentChar.character);
-					graphics2D.setColor(currentChar.foreground);
-					graphics2D.setBackground(currentChar.background);
+					
+					if(this.cursorPosition.equals(row, column) && this.cursorBlinkVisible) {
+						// reverse
+						graphics2D.fillRect(column * this.characterWidth, row * this.fontMetrics.getHeight(), this.characterWidth, this.fontMetrics.getHeight());
+						graphics2D.setColor(currentChar.background);
+						graphics2D.setBackground(currentChar.foreground);
+					} else {
+						graphics2D.setColor(currentChar.foreground);
+						graphics2D.setBackground(currentChar.background);
+					}
 				} else {
 					charString = " ";
 				}
@@ -152,9 +186,6 @@ public class Renderer extends JComponent {
 		}
 		
 		graphics2D.dispose();
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
 	}
 	
 	/**
@@ -185,5 +216,32 @@ public class Renderer extends JComponent {
 	public int getCharacterWidth() {
 		return this.characterWidth;
 	}
+	
+	/**
+	 * Dispose of this renderer.
+	 * 
+	 */
+	public void dispose() {
+		this.cursorBlinkTimer.stop();
+	}
 
+	// Other included classes follow
+	
+	/**
+	 * Action listener that mimicks cursor blinking effect
+	 * by showing/hiding cursor every few milli-seconds (500ms by
+	 * default).
+	 * 
+	 * @author sangupta
+	 *
+	 */
+	private class CursorBlinkAction implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			cursorBlinkVisible = !cursorBlinkVisible;
+			repaint();
+		}
+		
+	}
 }

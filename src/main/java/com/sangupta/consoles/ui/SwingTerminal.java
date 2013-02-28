@@ -31,7 +31,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.JFrame;
-import javax.swing.Timer;
 
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.ScreenPosition;
@@ -97,17 +96,6 @@ public class SwingTerminal {
 	private final TerminalCharacter screenView[][];
 	
 	/**
-	 * Timer that is used to show/hide cursor to achieve cursor blinking
-	 * effect
-	 */
-	private final Timer cursorBlinkTimer;
-	
-	/**
-	 * Indicates the current state of cursor blink - visible and invisible
-	 */
-	private boolean cursorBlinkVisible = false;
-	
-	/**
 	 * Holds the current position of the cursor
 	 */
 	private final ScreenPosition cursorPosition;
@@ -150,13 +138,17 @@ public class SwingTerminal {
 	 */
 	public SwingTerminal(int defaultColumns, int defaultRows) {
 		this.hostFrame = new JFrame();
-		this.cursorBlinkTimer = new Timer(500, new CursorBlinkAction());
 		
-		this.emptyCharacter = new TerminalCharacter();
+		this.emptyCharacter = new TerminalCharacter(' ', FOREGROUND_COLOR, BACKGROUND_COLOR);
 		this.screenView = new TerminalCharacter[defaultRows][defaultColumns];
 		
-		this.renderer = new Renderer(defaultColumns, defaultRows, this.screenView);
+		// initialize screen view
+		for(int row = 0; row < this.DEFAULT_ROWS; row++) {
+			Arrays.fill(this.screenView[row], this.emptyCharacter);
+		}
+		
 		this.cursorPosition = new ScreenPosition();
+		this.renderer = new Renderer(defaultColumns, defaultRows, this.screenView, this.cursorPosition);
 		
 		this.inputKeys = new ConcurrentLinkedQueue<InputKey>();
 		
@@ -175,7 +167,6 @@ public class SwingTerminal {
 			
 			@Override
 			public void windowClosing(WindowEvent e) {
-				closingTerminal = true;
 				closeTerminal();
 			}
 			
@@ -190,6 +181,8 @@ public class SwingTerminal {
 	 * 
 	 */
 	public void closeTerminal() {
+		this.closingTerminal = true;
+		this.renderer.dispose();
 		this.hostFrame.setVisible(false);
 		this.hostFrame.dispose();
 	}
@@ -239,6 +232,11 @@ public class SwingTerminal {
 				
 				setRelativeChar(0, -1, ' ');
 				continue;
+			}
+			
+			// SPECIAL KEYS
+			if(key.specialKey != null) {
+				
 			}
 			
 			// all well
@@ -501,23 +499,4 @@ public class SwingTerminal {
 		return key;
 	}
 
-	// Other included classes follow
-	
-	/**
-	 * Action listener that mimicks cursor blinking effect
-	 * by showing/hiding cursor every few milli-seconds (500ms by
-	 * default).
-	 * 
-	 * @author sangupta
-	 *
-	 */
-	private class CursorBlinkAction implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			cursorBlinkVisible = !cursorBlinkVisible;
-			renderer.repaintCursorPosition();
-		}
-		
-	}
 }

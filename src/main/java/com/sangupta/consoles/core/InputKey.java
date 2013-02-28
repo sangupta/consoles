@@ -30,23 +30,29 @@ public class InputKey {
 	
 	public char ch;
 	
-	public boolean altPressed;
+	public boolean altPressed = false;
 	
-	public boolean ctrlPressed;
+	public boolean ctrlPressed = false;
+	
+	public SpecialInputKey specialKey = null;
 	
 	public InputKey() {
 		
 	}
 	
+	public InputKey(char ch) {
+		this.ch = ch;
+	}
+	
+	public InputKey(SpecialInputKey key) {
+		this.specialKey = key;
+		this.ch = (char) 0;
+	}
+
 	public InputKey(char ch, boolean altPressed, boolean ctrlPressed) {
 		this.ch = ch;
 		this.altPressed = altPressed;
 		this.ctrlPressed = ctrlPressed;
 	}
 
-	public InputKey(char ch) {
-		this.ch = ch;
-		this.altPressed = false;
-		this.ctrlPressed = false;
-	}
 }
