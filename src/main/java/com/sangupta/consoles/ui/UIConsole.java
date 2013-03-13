@@ -23,10 +23,12 @@ package com.sangupta.consoles.ui;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Writer;
 
 import com.sangupta.consoles.IConsole;
 import com.sangupta.consoles.core.ConsoleInputStream;
+import com.sangupta.consoles.core.ConsoleOutputStream;
 import com.sangupta.consoles.core.ConsoleWriter;
 import com.sangupta.consoles.core.InputKey;
 
@@ -46,10 +48,17 @@ public class UIConsole implements IConsole {
 	protected final ConsoleWriter consoleWriter;
 	
 	/**
-	 * A {@link InputStream} implementation that can be used to read
+	 * An {@link InputStream} implementation that can be used to read
 	 * from the console.
 	 */
 	protected final ConsoleInputStream consoleInputStream;
+
+	/**
+	 * An {@link OutputStream} implementation that can be used to write
+	 * to the console.
+	 * 
+	 */
+	protected final ConsoleOutputStream consoleOutputStream;
 	
 	/**
 	 * Reference to the internal {@link SwingTerminal} instance.
@@ -64,6 +73,7 @@ public class UIConsole implements IConsole {
 		this.terminal = new SwingTerminal();
 		this.consoleWriter = new ConsoleWriter(this);
 		this.consoleInputStream = new ConsoleInputStream(this);
+		this.consoleOutputStream = new ConsoleOutputStream(this);
 	}
 
 	/**
@@ -162,7 +172,7 @@ public class UIConsole implements IConsole {
 	 * 
 	 */
 	@Override
-	public Writer getOutputStream() {
+	public Writer getWriter() {
 		return this.consoleWriter;
 	}
 
@@ -172,6 +182,14 @@ public class UIConsole implements IConsole {
 	@Override
 	public InputStream getInputStream() {
 		return this.consoleInputStream;
+	}
+	
+	/**
+	 * 
+	 */
+	@Override
+	public OutputStream getOutputStream() {
+		return this.consoleOutputStream;
 	}
 
 	/**

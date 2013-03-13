@@ -23,6 +23,7 @@ package com.sangupta.consoles.gui;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Writer;
 
 import com.sangupta.consoles.IConsole;
@@ -85,12 +86,17 @@ public class GUIConsole implements IConsole {
 	}
 
 	@Override
-	public Writer getOutputStream() {
+	public Writer getWriter() {
 		return null;
 	}
 
 	@Override
 	public InputStream getInputStream() {
+		return null;
+	}
+
+	@Override
+	public OutputStream getOutputStream() {
 		return null;
 	}
 

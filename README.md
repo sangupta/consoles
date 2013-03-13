@@ -10,7 +10,7 @@ Aim
 * Swing based UI console that mimicks the shell of an operating system
 * Consistent API for all console implementations
 
-**This library is in very nascent stage and should NOT be used.**
+**This library is in very nascent unstable stage and should NOT be used.**
 
 Versioning
 ----------

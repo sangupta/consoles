@@ -22,8 +22,8 @@
 package com.sangupta.consoles;
 
 import java.io.Flushable;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Writer;
 
 /**
@@ -117,11 +117,11 @@ public interface IConsole extends Flushable {
 	public void shutdown();
 
 	/**
-	 * Return the output stream handler for this console
+	 * Return the output stream handle for this console as a {@link Writer} instance
 	 * 
 	 * @return
 	 */
-	public Writer getOutputStream();
+	public Writer getWriter();
 
 	/**
 	 * Return the input stream handler of this console
@@ -129,5 +129,12 @@ public interface IConsole extends Flushable {
 	 * @return
 	 */
 	public InputStream getInputStream();
+	
+	/**
+	 * Return the output stream handle for this console
+	 * 
+	 * @return
+	 */
+	public OutputStream getOutputStream();
 
 }

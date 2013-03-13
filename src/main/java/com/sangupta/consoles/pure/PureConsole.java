@@ -23,6 +23,7 @@ package com.sangupta.consoles.pure;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Writer;
 
 import jline.console.ConsoleReader;
@@ -170,13 +171,18 @@ public class PureConsole implements IConsole {
 	}
 
 	@Override
-	public Writer getOutputStream() {
+	public Writer getWriter() {
 		return this.consoleReader.getOutput();
 	}
 
 	@Override
 	public InputStream getInputStream() {
 		return this.consoleReader.getInput();
+	}
+
+	@Override
+	public OutputStream getOutputStream() {
+		return null;
 	}
 
 	@Override
