@@ -84,6 +84,30 @@
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1.2</version>
             </plugin>
+
+			<!-- Create an all run JAR -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>com.sangupta.consoles.PureTest</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+	            <executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+		        </executions>
+			</plugin>
 		</plugins>
 	</build>
 		
