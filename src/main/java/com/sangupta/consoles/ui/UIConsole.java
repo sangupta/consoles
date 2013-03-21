@@ -112,6 +112,11 @@ public class UIConsole implements IConsole {
 	 */
 	@Override
 	public void print(char ch) {
+		if(ch == 13) {
+			this.terminal.write("\n");
+			return;
+		}
+		
 		this.terminal.writeChar(ch);
 	}
 	

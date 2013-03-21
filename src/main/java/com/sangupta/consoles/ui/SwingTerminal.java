@@ -372,6 +372,7 @@ public class SwingTerminal {
 				
 				switch(charToWrite) {
 					case '\n':
+					case '\r':
 						row++;
 						col = 0;
 						break;
