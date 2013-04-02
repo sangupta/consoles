@@ -226,6 +226,10 @@ public class SwingTerminal {
 			if(key.ch == 8) {
 				if(builder.length() > 0) {
 					builder.deleteCharAt(builder.length() - 1);
+				} else {
+					// we have deleted all chars already
+					// skip this key
+					continue;
 				}
 				
 				setRelativeChar(0, -1, ' ');
