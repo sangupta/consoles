@@ -35,20 +35,37 @@ import com.sangupta.consoles.IConsole;
  */
 public class ConsoleInputStream extends InputStream {
 	
+	/**
+	 * Internal reference to the console handle
+	 */
 	protected IConsole console;
 	
+	/**
+	 * Public constructor.
+	 * 
+	 * @param console
+	 */
 	public ConsoleInputStream(IConsole console) {
 		this.console = console;
 	}
 
+	/**
+	 * Method that reads one character from the stream, blockingly.
+	 * 
+	 * @see java.io.InputStream#read()
+	 */
 	@Override
 	public int read() throws IOException {
 		char ch = this.console.readChar();
-		if(ch == 13) {
-			ch = '\n';
+		int ascii = (int) ch;
+		
+		if(ascii == 13 || ascii == 10) {
+			this.console.print('\n');
+			return -1;
 		}
+		
 		this.console.print(ch);
-		return ch;
+		return ascii;
 	}
 
 }

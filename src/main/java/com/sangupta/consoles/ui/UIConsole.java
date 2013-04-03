@@ -112,7 +112,8 @@ public class UIConsole implements IConsole {
 	 */
 	@Override
 	public void print(char ch) {
-		if(ch == 13) {
+		int ascii = (int) ch;
+		if(ascii == 10) {
 			this.terminal.write("\n");
 			return;
 		}
