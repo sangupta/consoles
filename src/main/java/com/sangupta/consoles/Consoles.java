@@ -35,6 +35,22 @@ import com.sangupta.consoles.ui.UIConsole;
  */
 public class Consoles {
 	
+	/**
+	 * Return a {@link IConsole} implementation based on the best-effort matching
+	 * strategy.
+	 * 
+	 * @return
+	 */
+	public static IConsole getConsole() {
+		return getConsole(null);
+	}
+	
+	/**
+	 * Return a console of the given type.
+	 * 
+	 * @param type
+	 * @return
+	 */
 	public static IConsole getConsole(ConsoleType type) {
 		if(type == null) {
 			type = ConsoleType.BestEffort;
