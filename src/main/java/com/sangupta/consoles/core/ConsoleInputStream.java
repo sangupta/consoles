@@ -41,6 +41,22 @@ public class ConsoleInputStream extends InputStream {
 	protected IConsole console;
 	
 	/**
+	 * Reads one line from the {@link IConsole} and holds it in buffer
+	 * and keeps sending back characters as they are required.
+	 */
+	private String lineBuffer;
+	
+	/**
+	 * Holds the current position of character in bufferLine.
+	 */
+	private int index;
+	
+	/**
+	 * Signals if we have reached the end-of-line
+	 */
+	private boolean endOfLineReached = false;
+	
+	/**
 	 * Public constructor.
 	 * 
 	 * @param console
@@ -56,16 +72,28 @@ public class ConsoleInputStream extends InputStream {
 	 */
 	@Override
 	public int read() throws IOException {
-		char ch = this.console.readChar();
-		int ascii = (int) ch;
-		
-		if(ascii == 13 || ascii == 10) {
-			this.console.print('\n');
+		if(this.endOfLineReached) {
+			this.lineBuffer = null;
+			this.index = 0;
+			this.endOfLineReached = false;
 			return -1;
 		}
 		
-		this.console.print(ch);
-		return ascii;
+		if(this.lineBuffer == null) {
+			this.lineBuffer = this.console.readLine();
+			this.index = 0;
+		}
+		
+		if(this.lineBuffer == null) {
+			return -1;
+		}
+		
+		if(this.index >= this.lineBuffer.length()) {
+			this.endOfLineReached = true;
+			return '\n'; // lines should end with a new line
+		}
+		
+		return this.lineBuffer.charAt(this.index++);
 	}
 
 }
