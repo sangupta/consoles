@@ -117,6 +117,16 @@ public class SwingTerminal {
 	private boolean closingTerminal = false;
 	
 	/**
+	 * Number of rows that should be present on screen.
+	 */
+	private int numScreenRows;
+	
+	/**
+	 * Number of columns that should be present on screen.
+	 */
+	private int numScreenColumns;
+	
+	/**
 	 * Default constructor - uses the default number of rows and columns
 	 * to construct and instance.
 	 * 
@@ -124,29 +134,39 @@ public class SwingTerminal {
 	public SwingTerminal() {
 		this(DEFAULT_COLUMNS, DEFAULT_ROWS);
 	}
-
+	
 	/**
 	 * Construct an instance of Swing based terminal instance with the given
 	 * number of rows and columns. The pixel-size of the instance is obtained
 	 * by the height/width of a character in the font associated with the
 	 * renderer instance.
 	 * 
-	 * @param defaultColumns
-	 * @param defaultRows
+	 * @param columns
+	 * @param rows
 	 */
-	public SwingTerminal(int defaultColumns, int defaultRows) {
+	public SwingTerminal(int columns, int rows) {
+		if(columns <= 0) {
+			columns = DEFAULT_COLUMNS;
+		}
+		if(rows <= 0) {
+			rows = DEFAULT_ROWS;
+		}
+		
+		this.numScreenRows = rows;
+		this.numScreenColumns = columns;
+		
 		this.hostFrame = new JFrame();
 		
 		this.emptyCharacter = new TerminalCharacter(' ', FOREGROUND_COLOR, BACKGROUND_COLOR);
-		this.screenView = new TerminalCharacter[defaultRows][defaultColumns];
+		this.screenView = new TerminalCharacter[rows][columns];
 		
 		// initialize screen view
-		for(int row = 0; row < this.DEFAULT_ROWS; row++) {
+		for(int row = 0; row < this.numScreenRows; row++) {
 			Arrays.fill(this.screenView[row], this.emptyCharacter);
 		}
 		
 		this.cursorPosition = new ScreenPosition();
-		this.renderer = new Renderer(defaultColumns, defaultRows, this.screenView, this.cursorPosition);
+		this.renderer = new Renderer(this.numScreenColumns, this.numScreenRows, this.screenView, this.cursorPosition);
 		
 		this.inputKeys = new ConcurrentLinkedQueue<InputKey>();
 		
@@ -213,7 +233,7 @@ public class SwingTerminal {
 			if(key.ch == '\n' && !key.altPressed && !key.ctrlPressed) {
 				int currentRow = this.cursorPosition.getRow();
 				currentRow++;
-				if(currentRow == this.DEFAULT_ROWS) {
+				if(currentRow == this.numScreenRows) {
 					scrollUp();
 					currentRow--;
 				}
@@ -293,7 +313,7 @@ public class SwingTerminal {
 		int col = this.cursorPosition.getColumn() + columns;
 		
 		while(col < 0) {
-			col = col + this.DEFAULT_COLUMNS;
+			col = col + this.numScreenColumns;
 			row--;
 		}
 		
@@ -405,13 +425,13 @@ public class SwingTerminal {
 				}
 				
 				// check for next line
-				if(col == this.DEFAULT_COLUMNS) {
+				if(col == this.numScreenColumns) {
 					col = 0;
 					row++;
 				}
 				
 				// check if we need to move to next line
-				if(row == this.DEFAULT_ROWS) {
+				if(row == this.numScreenRows) {
 					// scroll up
 					scrollUp();
 					row--;
@@ -438,13 +458,13 @@ public class SwingTerminal {
 			this.screenView[row][col++] = new TerminalCharacter(ch, FOREGROUND_COLOR, BACKGROUND_COLOR);
 
 			// check for next line
-			if(col == this.DEFAULT_COLUMNS) {
+			if(col == this.numScreenColumns) {
 				col = 0;
 				row++;
 			}
 			
 			// check if we need to move to next line
-			if(row == this.DEFAULT_ROWS) {
+			if(row == this.numScreenRows) {
 				// scroll up
 				scrollUp();
 				row--;
@@ -460,12 +480,12 @@ public class SwingTerminal {
 	 */
 	void scrollUp() {
 		synchronized (CHANGE_MUTEX) {
-			for(int row = 1; row < this.DEFAULT_ROWS; row++) {
+			for(int row = 1; row < this.numScreenRows; row++) {
 				this.screenView[row - 1] = this.screenView[row];
 			}
 
-			int row = this.DEFAULT_ROWS - 1;
-			this.screenView[row] = new TerminalCharacter[this.DEFAULT_COLUMNS];
+			int row = this.numScreenRows - 1;
+			this.screenView[row] = new TerminalCharacter[this.numScreenColumns];
 			Arrays.fill(this.screenView[row], this.emptyCharacter);
 		}
 	}

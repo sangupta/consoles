@@ -45,13 +45,17 @@ public class Consoles {
 		return getConsole(null);
 	}
 	
+	public static IConsole getConsole(ConsoleType type) {
+		return getConsole(type, 0, 0);
+	}
+	
 	/**
 	 * Return a console of the given type.
 	 * 
 	 * @param type
 	 * @return
 	 */
-	public static IConsole getConsole(ConsoleType type) {
+	public static IConsole getConsole(ConsoleType type, int rows, int columns) {
 		if(type == null) {
 			type = ConsoleType.BestEffort;
 		}
@@ -61,7 +65,7 @@ public class Consoles {
 				return new PureConsole();
 			
 			case UI:
-				return new UIConsole();
+				return new UIConsole(rows, columns);
 
 			case GUI:
 				return new GUIConsole();
@@ -76,7 +80,7 @@ public class Consoles {
 			return new PureConsole();
 		}
 
-		return new UIConsole(); 
+		return new UIConsole(rows, columns); 
 	}
 
 }

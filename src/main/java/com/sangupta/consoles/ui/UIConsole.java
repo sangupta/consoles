@@ -77,6 +77,18 @@ public class UIConsole implements IConsole {
 	}
 
 	/**
+	 * 
+	 * @param rows
+	 * @param columns
+	 */
+	public UIConsole(int rows, int columns) {
+		this.terminal = new SwingTerminal(columns, rows);
+		this.consoleWriter = new ConsoleWriter(this);
+		this.consoleInputStream = new ConsoleInputStream(this);
+		this.consoleOutputStream = new ConsoleOutputStream(this);
+	}
+
+	/**
 	 * Clear the screen
 	 */
 	@Override
