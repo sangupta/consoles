@@ -166,6 +166,10 @@ public class Renderer extends JComponent {
 				currentChar = this.screenView[row][column];
 				
 				if(currentChar != null) {
+					if(currentChar.character == 0) {
+						currentChar.character = ' ';
+					}
+					
 					charString = Character.toString(currentChar.character);
 					
 					if(this.cursorPosition.equals(row, column) && this.cursorBlinkVisible) {
@@ -243,5 +247,30 @@ public class Renderer extends JComponent {
 			repaint();
 		}
 		
+	}
+
+	/**
+	 * Method allows to resize the renderer to a new size so that JFrame can be adjusted
+	 * accordingly.
+	 * 
+	 * @param newScreenView
+	 * @param newRows
+	 * @param newColumns
+	 */
+	public void resizeRenderer(TerminalCharacter[][] newScreenView, int newRows, int newColumns) {
+		this.numColumns = newColumns;
+		this.numRows = newRows;
+		this.screenView = newScreenView;
+
+		recomputeDimension();
+	}
+
+	public int[] getSizeInCharacterBlocks(Dimension dimension) {
+		int[] values = new int[2];
+		
+		values[0] = (int) (dimension.getHeight() / this.fontMetrics.getHeight());
+		values[1] = (int) (dimension.getWidth() / this.characterWidth);
+		
+		return values;
 	}
 }

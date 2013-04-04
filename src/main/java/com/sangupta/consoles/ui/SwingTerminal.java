@@ -22,6 +22,9 @@
 package com.sangupta.consoles.ui;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
@@ -59,7 +62,7 @@ public class SwingTerminal {
 	/**
 	 * Default foreground color for a terminal
 	 */
-	private static final Color FOREGROUND_COLOR = new Color(255, 255, 255);
+	private static final Color FOREGROUND_COLOR = new Color(192, 192, 192);
 	
 	/**
 	 * Default tab stops, 4 chars per tab
@@ -91,7 +94,7 @@ public class SwingTerminal {
 	 * Holds one screen-view of information for this console.
 	 * 
 	 */
-	private final TerminalCharacter screenView[][];
+	private TerminalCharacter screenView[][];
 	
 	/**
 	 * Holds the current position of the cursor
@@ -109,6 +112,14 @@ public class SwingTerminal {
 	 * clearing the terminal, or resizing the terminal. 
 	 */
 	private final Object CHANGE_MUTEX = new Object();
+	
+	/**
+	 * Mutex lock to make sure that only thread/one resize-event is taken
+	 * care of first. That is once, the first resize event is complete, only
+	 * then we start processing the second resize event.
+	 * 
+	 */
+	private final Object RESIZE_MUTEX = new Object();
 	
 	/**
 	 * Signals the keyboard input thread to break immediately as 
@@ -157,7 +168,7 @@ public class SwingTerminal {
 		
 		this.hostFrame = new JFrame();
 		
-		this.emptyCharacter = new TerminalCharacter(' ', FOREGROUND_COLOR, BACKGROUND_COLOR);
+		this.emptyCharacter = new TerminalCharacter((char) 0, FOREGROUND_COLOR, BACKGROUND_COLOR);
 		this.screenView = new TerminalCharacter[rows][columns];
 		
 		// initialize screen view
@@ -177,7 +188,7 @@ public class SwingTerminal {
 		this.hostFrame.addKeyListener(new InputKeyListener(this.inputKeys));
 		
 		this.hostFrame.setLocationByPlatform(true);
-		this.hostFrame.setResizable(false);
+		this.hostFrame.setResizable(true);
 		this.hostFrame.setSize(this.renderer.getPreferredSize());
 		
 		// add the closing handler for the terminal
@@ -186,6 +197,21 @@ public class SwingTerminal {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				closeTerminal();
+			}
+			
+		});
+		
+		// add resize listener to the jframe
+		this.hostFrame.addComponentListener(new ComponentAdapter() {
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				super.componentResized(e);
+				
+				Dimension dimension = e.getComponent().getSize();
+				int[] size = renderer.getSizeInCharacterBlocks(dimension);
+				
+				resize(size[0], size[1]);
 			}
 			
 		});
@@ -447,14 +473,10 @@ public class SwingTerminal {
 	 * @param ch
 	 */
 	void write(char ch) {
-		if(ch == 0) {
-			return;
-		}
-		
 		synchronized (CHANGE_MUTEX) {
 			int col = this.cursorPosition.getColumn();
 			int row = this.cursorPosition.getRow();
-			
+
 			this.screenView[row][col++] = new TerminalCharacter(ch, FOREGROUND_COLOR, BACKGROUND_COLOR);
 
 			// check for next line
@@ -552,6 +574,67 @@ public class SwingTerminal {
 		}
 		
 		return key;
+	}
+	
+	/**
+	 * Resize the JFrame to a new size so that users can alter the size based on their
+	 * needs.
+	 * 
+	 * @param newRows
+	 * @param newColumns
+	 */
+	public void resize(final int newRows, final int newColumns) {
+		if(newRows <= 0) {
+			throw new IllegalArgumentException("Number of rows cannot be less than or equal to zero.");
+		}
+		
+		if(newColumns <= 0) {
+			throw new IllegalArgumentException("Number of rows cannot be less than or equal to zero.");
+		}
+		
+		synchronized (RESIZE_MUTEX) {
+			if(newRows == this.numScreenRows && newColumns == this.numScreenColumns) {
+				// there is nothing to do - we are the same size
+				return;
+			}
+
+			if(newRows < this.numScreenRows || newColumns < this.numScreenColumns) {
+				// TODO: we currently do not support shrinking of the frame
+				this.hostFrame.setSize(this.renderer.getPreferredSize());
+				return;
+			}
+			
+			System.out.println("resizing to " + newRows + ", " + newColumns);
+			
+			// initialize the new screen view
+			TerminalCharacter newScreenView[][] = new TerminalCharacter[newRows][newColumns];
+			for(int row = 0; row < newRows; row++) {
+				Arrays.fill(newScreenView[row], this.emptyCharacter);
+			}
+			
+			synchronized (CHANGE_MUTEX) {
+				// fill this array with the current data
+				for(int row = 0; row < this.numScreenRows; row++) {
+					for(int col = 0; col < this.numScreenColumns; col++) {
+						newScreenView[row][col] = this.screenView[row][col];
+					}
+				}
+				
+				// set the properties
+				this.screenView = newScreenView;
+				this.numScreenRows = newRows;
+				this.numScreenColumns = newColumns;
+
+				// rebuild the renderer
+				this.renderer.resizeRenderer(newScreenView, newRows, newColumns);
+			}
+			
+			// reset the jframe size
+			this.hostFrame.setSize(this.renderer.getPreferredSize());			
+
+			// start the re-rendering process
+			this.refresh();
+		}
 	}
 
 }
