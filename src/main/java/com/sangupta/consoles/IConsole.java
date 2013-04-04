@@ -137,4 +137,11 @@ public interface IConsole extends Flushable {
 	 */
 	public OutputStream getOutputStream();
 
+	/**
+	 * Add a shutdown hook that should be called when the console is called.
+	 * 
+	 * @param runnable
+	 */
+	public void addShutdownHook(Runnable runnable);
+
 }

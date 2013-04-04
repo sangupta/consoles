@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.sangupta.consoles.IConsole;
 import com.sangupta.consoles.core.ConsoleInputStream;
@@ -215,6 +217,11 @@ public class UIConsole implements IConsole {
 	 */
 	public void flush() throws IOException {
 		this.consoleWriter.flush();
+	}
+
+	@Override
+	public void addShutdownHook(Runnable runnable) {
+		this.terminal.addShutdownHook(runnable);
 	}
 
 }

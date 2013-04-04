@@ -105,4 +105,9 @@ public class GUIConsole implements IConsole {
 		
 	}
 
+	@Override
+	public void addShutdownHook(Runnable runnable) {
+		
+	}
+
 }

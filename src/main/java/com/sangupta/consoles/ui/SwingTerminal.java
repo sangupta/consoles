@@ -27,7 +27,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -137,6 +139,8 @@ public class SwingTerminal {
 	 */
 	private int numScreenColumns;
 	
+	protected List<Runnable> shutDownHooks;
+	
 	/**
 	 * Default constructor - uses the default number of rows and columns
 	 * to construct and instance.
@@ -225,7 +229,24 @@ public class SwingTerminal {
 	 * 
 	 */
 	public void closeTerminal() {
+		if(this.closingTerminal) {
+			// already closed
+			return;
+		}
+		
+		// start closing
 		this.closingTerminal = true;
+
+		// call shutdown hooks
+		if(this.shutDownHooks != null && !this.shutDownHooks.isEmpty()) {
+			for(Runnable hook : this.shutDownHooks) {
+				hook.run();
+			}
+			
+			this.shutDownHooks.clear();
+		}
+		
+		// clean up objects
 		this.renderer.dispose();
 		this.hostFrame.setVisible(false);
 		this.hostFrame.dispose();
@@ -633,6 +654,18 @@ public class SwingTerminal {
 			// start the re-rendering process
 			this.refresh();
 		}
+	}
+
+	public void addShutdownHook(Runnable runnable) {
+		if(this.closingTerminal) {
+			throw new IllegalStateException("We are already closing this terminal");
+		}
+		
+		if(this.shutDownHooks == null) {
+			this.shutDownHooks = new ArrayList<Runnable>(); 
+		}
+		
+		this.shutDownHooks.add(runnable);
 	}
 
 }

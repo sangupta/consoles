@@ -190,4 +190,10 @@ public class PureConsole implements IConsole {
 		this.consoleReader.flush();
 	}
 
+	@Override
+	public void addShutdownHook(Runnable runnable) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
