@@ -604,8 +604,6 @@ public class SwingTerminal {
 				return;
 			}
 			
-			System.out.println("resizing to " + newRows + ", " + newColumns);
-			
 			// initialize the new screen view
 			TerminalCharacter newScreenView[][] = new TerminalCharacter[newRows][newColumns];
 			for(int row = 0; row < newRows; row++) {
