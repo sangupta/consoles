@@ -668,6 +668,11 @@ public class SwingTerminal {
 		}
 	}
 
+	/**
+	 * Add a shutdown hook to this terminal instance.
+	 * 
+	 * @param runnable
+	 */
 	public void addShutdownHook(Runnable runnable) {
 		if(this.closingTerminal) {
 			throw new IllegalStateException("We are already closing this terminal");
