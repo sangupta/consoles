@@ -22,6 +22,8 @@
 package com.sangupta.consoles.core;
 
 /**
+ * Defines the screen position of cursor.
+ * 
  * @author sangupta
  *
  */

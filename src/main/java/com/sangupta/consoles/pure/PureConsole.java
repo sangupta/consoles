@@ -32,7 +32,7 @@ import com.sangupta.consoles.IConsole;
 
 /**
  * A normal console implementation that works in the shell of the operating
- * system.
+ * system. This implementation uses <code>Jline</code> framework.
  * 
  * @author sangupta
  *

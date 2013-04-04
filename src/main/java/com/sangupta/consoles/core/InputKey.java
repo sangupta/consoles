@@ -22,6 +22,7 @@
 package com.sangupta.consoles.core;
 
 /**
+ * Represent one key stroke that was keyed-in by the user.
  * 
  * @author sangupta
  *

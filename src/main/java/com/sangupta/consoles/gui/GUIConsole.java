@@ -28,6 +28,11 @@ import java.io.Writer;
 
 import com.sangupta.consoles.IConsole;
 
+/**
+ * 
+ * @author sangupta
+ *
+ */
 public class GUIConsole implements IConsole {
 
 	@Override
