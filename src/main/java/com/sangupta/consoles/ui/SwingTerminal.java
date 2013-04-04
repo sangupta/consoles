@@ -289,6 +289,18 @@ public class SwingTerminal {
 				break;
 			}
 			
+			// ESCAPE
+			if((int) key.ch == 27) {
+				int length = builder.length();
+				builder.setLength(0);
+				
+				// TODO: optimize this call for performance
+				for(int index = 0; index < length; index++) {
+					setRelativeChar(0, -1, ' ');
+				}
+				continue;
+			}
+			
 			// BACKSPACE
 			if(key.ch == 8) {
 				if(builder.length() > 0) {
