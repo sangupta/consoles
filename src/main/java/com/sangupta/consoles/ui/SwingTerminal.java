@@ -23,10 +23,16 @@ package com.sangupta.consoles.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.HeadlessException;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +41,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.event.MouseInputAdapter;
 
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.ScreenPosition;
@@ -253,8 +260,26 @@ public class SwingTerminal {
 		// which should be allowed to resize the JFrame as that is what
 		// not the user has asked for
 		this.initialized = true;
+		
+		// add mouse event handlers
+		addMouseEventHandlers();
 	}
 	
+	private void addMouseEventHandlers() {
+		this.renderer.addMouseListener(new MouseInputAdapter() {
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// check if the user clicked on right button
+				if(e.getButton() == MouseEvent.BUTTON3) {
+					// this a paste action
+					processPasteAction();
+				}
+			}
+			
+		});
+	}
+
 	/**
 	 * Close this terminal and dispose of all associated resources.
 	 * 
@@ -718,6 +743,32 @@ public class SwingTerminal {
 		}
 		
 		this.shutDownHooks.add(runnable);
+	}
+	
+	/**
+	 * Handle paste action from clipboard
+	 */
+	protected void processPasteAction() {
+		String data = null;
+		try {
+			data = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+		} catch (HeadlessException e) {
+			// eat up
+		} catch (UnsupportedFlavorException e) {
+			// eat up
+		} catch (IOException e) {
+			// eat up
+		} 
+		
+		if(data == null) {
+			return;
+		}
+		
+		// paste it at current location
+		char[] chars = data.toCharArray();
+		for(char ch : chars) {
+			this.inputKeys.add(new InputKey(ch));
+		}
 	}
 
 }

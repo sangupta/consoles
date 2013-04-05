@@ -221,5 +221,10 @@ public class UIConsole implements IConsole {
 	public void addShutdownHook(Runnable runnable) {
 		this.terminal.addShutdownHook(runnable);
 	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		this.shutdown();
+	}
 
 }

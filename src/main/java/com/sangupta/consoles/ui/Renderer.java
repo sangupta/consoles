@@ -273,4 +273,5 @@ public class Renderer extends JComponent {
 		
 		return values;
 	}
+	
 }
