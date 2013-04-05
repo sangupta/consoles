@@ -34,6 +34,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.ScreenPosition;
@@ -139,7 +140,17 @@ public class SwingTerminal {
 	 */
 	private int numScreenColumns;
 	
+	/**
+	 * Holds the list of all shutdown hooks that have been added to this terminal.
+	 * 
+	 */
 	protected List<Runnable> shutDownHooks;
+	
+	/**
+	 * Boolean value indicating if we are done initialising and creating the
+	 * instance of this object.
+	 */
+	private boolean initialized = false;
 	
 	/**
 	 * Default constructor - uses the default number of rows and columns
@@ -192,9 +203,12 @@ public class SwingTerminal {
 		this.hostFrame.addKeyListener(new InputKeyListener(this.inputKeys));
 		
 		this.hostFrame.setLocationByPlatform(true);
-		this.hostFrame.setResizable(true);
+
+		this.hostFrame.setResizable(false);
 		this.hostFrame.setSize(this.renderer.getPreferredSize());
-		
+		this.hostFrame.setResizable(true);
+		this.hostFrame.pack();
+
 		// add the closing handler for the terminal
 		this.hostFrame.addWindowListener(new WindowAdapter() {
 			
@@ -205,23 +219,40 @@ public class SwingTerminal {
 			
 		});
 		
+		this.hostFrame.setVisible(true);
+		this.hostFrame.pack();
+		
 		// add resize listener to the jframe
-		this.hostFrame.addComponentListener(new ComponentAdapter() {
-			
+		SwingUtilities.invokeLater(new Runnable() {
+
 			@Override
-			public void componentResized(ComponentEvent e) {
-				super.componentResized(e);
-				
-				Dimension dimension = e.getComponent().getSize();
-				int[] size = renderer.getSizeInCharacterBlocks(dimension);
-				
-				resize(size[0], size[1]);
+			public void run() {
+				hostFrame.addComponentListener(new ComponentAdapter() {
+					
+					@Override
+					public void componentResized(ComponentEvent e) {
+						super.componentResized(e);
+						
+						if(!e.getComponent().isShowing()) {
+							return;
+						}
+						
+						Dimension dimension = e.getComponent().getSize();
+						int[] size = renderer.getSizeInCharacterBlocks(dimension);
+						
+						resize(size[0], size[1]);
+					}
+					
+				});
 			}
 			
 		});
 
-		this.hostFrame.setVisible(true);
-		this.hostFrame.pack();
+		// set it only in the last
+		// a resize event may be fired before this method completes 
+		// which should be allowed to resize the JFrame as that is what
+		// not the user has asked for
+		this.initialized = true;
 	}
 	
 	/**
@@ -323,7 +354,7 @@ public class SwingTerminal {
 					case LeftArrow:
 						this.setRelativeCursorPosition(0, -1);
 						continue;
-						
+
 					default:
 						// do nothing
 						break;
@@ -617,6 +648,10 @@ public class SwingTerminal {
 	 * @param newColumns
 	 */
 	public void resize(final int newRows, final int newColumns) {
+		if(!this.initialized) {
+			return;
+		}
+		
 		if(newRows <= 0) {
 			throw new IllegalArgumentException("Number of rows cannot be less than or equal to zero.");
 		}
