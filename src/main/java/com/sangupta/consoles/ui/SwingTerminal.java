@@ -326,7 +326,7 @@ public class SwingTerminal {
 		
 		InputKey key;
 		while(true) {
-			key = this.getKey();
+			key = this.getKey(false);
 			
 			if(this.closingTerminal) {
 				break;
@@ -653,6 +653,10 @@ public class SwingTerminal {
 	 * @return
 	 */
 	public InputKey getKey() {
+		return getKey(true);
+	}
+	
+	public InputKey getKey(boolean echo) {
 		InputKey key = null;
 		while(key == null) {
 			if(this.closingTerminal) {
@@ -660,6 +664,10 @@ public class SwingTerminal {
 			}
 			
 			key = this.inputKeys.poll();
+		}
+		
+		if(echo) {
+			write(key.ch);
 		}
 		
 		return key;
