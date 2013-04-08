@@ -12,6 +12,12 @@ Aim
 
 **This library is in very nascent unstable stage and should NOT be used.**
 
+Features
+--------
+* Non-intrusive console implementation
+* Easy replacement for System.in, System.out, System.err and Console 
+* Support for mouse interactions to paste data 
+
 Versioning
 ----------
 
