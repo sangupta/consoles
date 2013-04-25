@@ -21,11 +21,13 @@
 
 package com.sangupta.consoles.ui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -172,7 +174,11 @@ public class Renderer extends JComponent {
 					
 					charString = Character.toString(currentChar.character);
 					
-					if(this.cursorPosition.equals(row, column) && this.cursorBlinkVisible) {
+					if(currentChar.highlighted) {
+						graphics2D.setColor(Color.WHITE);
+						graphics2D.fillRect(column * this.characterWidth, row * this.fontMetrics.getHeight(), this.characterWidth, this.fontMetrics.getHeight());
+						graphics2D.setColor(currentChar.background);
+					} else if(this.cursorPosition.equals(row, column) && this.cursorBlinkVisible) {
 						// reverse
 						graphics2D.fillRect(column * this.characterWidth, row * this.fontMetrics.getHeight(), this.characterWidth, this.fontMetrics.getHeight());
 						graphics2D.setColor(currentChar.background);
@@ -272,6 +278,17 @@ public class Renderer extends JComponent {
 		values[1] = (int) (dimension.getWidth() / this.characterWidth);
 		
 		return values;
+	}
+
+	public ScreenPosition getScreenPosition(Point point) {
+		if(point == null) {
+			return null;
+		}
+		
+		int row = (int) (point.getY() / this.fontMetrics.getHeight());
+		int col = (int) (point.getX() / this.characterWidth);
+		
+		return new ScreenPosition(row, col);
 	}
 	
 }

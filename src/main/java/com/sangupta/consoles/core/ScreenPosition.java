@@ -63,6 +63,30 @@ public class ScreenPosition {
 		return this.row == row && this.column == column;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null) {
+			return false;
+		}
+		
+		if(!(obj instanceof ScreenPosition)) {
+			return false;
+		}
+		
+		ScreenPosition spos = (ScreenPosition) obj;
+		return this.equals(spos.row, spos.column);
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.row * 17 + this.column;
+	}
+	
+	@Override
+	public String toString() {
+		return "[" + this.row + ", " + this.column + "]";
+	}
+	
 	// Usual accessors follow
 
 	/**

@@ -24,25 +24,25 @@ package com.sangupta.consoles.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import javax.swing.event.MouseInputAdapter;
 
+import com.sangupta.consoles.ConsolesConstants;
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.ScreenPosition;
 
@@ -160,6 +160,11 @@ public class SwingTerminal {
 	private boolean initialized = false;
 	
 	/**
+	 * Handles mouse interaction in this terminal instance
+	 */
+	private final MouseHandler mouseHandler;
+	
+	/**
 	 * Default constructor - uses the default number of rows and columns
 	 * to construct and instance.
 	 * 
@@ -195,7 +200,7 @@ public class SwingTerminal {
 		
 		// initialize screen view
 		for(int row = 0; row < this.numScreenRows; row++) {
-			Arrays.fill(this.screenView[row], this.emptyCharacter);
+			clearRow(this.screenView[row]);
 		}
 		
 		this.cursorPosition = new ScreenPosition();
@@ -262,24 +267,11 @@ public class SwingTerminal {
 		this.initialized = true;
 		
 		// add mouse event handlers
-		addMouseEventHandlers();
+		this.mouseHandler = new MouseHandler(this);
+		this.renderer.addMouseListener(this.mouseHandler);
+		this.renderer.addMouseMotionListener(this.mouseHandler);
 	}
 	
-	private void addMouseEventHandlers() {
-		this.renderer.addMouseListener(new MouseInputAdapter() {
-			
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				// check if the user clicked on right button
-				if(e.getButton() == MouseEvent.BUTTON3) {
-					// this a paste action
-					processPasteAction();
-				}
-			}
-			
-		});
-	}
-
 	/**
 	 * Close this terminal and dispose of all associated resources.
 	 * 
@@ -597,7 +589,9 @@ public class SwingTerminal {
 
 			int row = this.numScreenRows - 1;
 			this.screenView[row] = new TerminalCharacter[this.numScreenColumns];
-			Arrays.fill(this.screenView[row], this.emptyCharacter);
+			for(int index = 0; index < this.screenView[row].length; index++) {
+				this.screenView[row][index] = this.emptyCharacter.clone();
+			}
 		}
 	}
 	
@@ -609,10 +603,16 @@ public class SwingTerminal {
 	public void clearTerminal() {
 		synchronized (CHANGE_MUTEX) {
 			for(int row = 0; row < this.screenView.length; row++) {
-				Arrays.fill(this.screenView[row], this.emptyCharacter);
+				clearRow(this.screenView[row]);
 			}
 			
 			this.moveCursor(0, 0);
+		}
+	}
+	
+	private void clearRow(TerminalCharacter[] row) {
+		for(int index = 0; index < row.length; index++) {
+			row[index] = this.emptyCharacter.clone();
 		}
 	}
 	
@@ -674,6 +674,76 @@ public class SwingTerminal {
 	}
 	
 	/**
+	 * Return the current screen position in terms of row and column
+	 * for the given point on screen.
+	 * 
+	 * @param point
+	 * @return
+	 */
+	public ScreenPosition getScreenPosition(Point point) {
+		return this.renderer.getScreenPosition(point);
+	}
+	
+	public void highlightBox(ScreenPosition pos) {
+		if(pos == null) {
+			return;
+		}
+		
+		this.unHighlight();
+		this.highlightBox(pos.getColumn(), pos.getRow(), pos.getColumn(), pos.getRow());
+	}
+
+	/**
+	 * Highlight the entire area on the screen as a mouse selection.
+	 * 
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 */
+	public void highlightBox(int x1, int y1, int x2, int y2) {
+		for(int row = 0; row < y1; row++) {
+			for(int col = 0; col < this.numScreenColumns; col++) {
+				this.screenView[row][col].highlighted = false;
+			}
+		}
+		for(int row = y2 + 1; row < this.numScreenRows; row++) {
+			for(int col = 0; col < this.numScreenColumns; col++) {
+				this.screenView[row][col].highlighted = false;
+			}
+		}
+		for(int col = 0; col < x1; col++) {
+			for(int row = 0; row < this.numScreenRows; row++) {
+				this.screenView[row][col].highlighted = false;
+			}
+		}
+		for(int col = x2 + 1; col < this.numScreenColumns; col++) {
+			for(int row = 0; row < this.numScreenRows; row++) {
+				this.screenView[row][col].highlighted = false;
+			}
+		}
+		
+		// now highlight the box
+		for(int row = y1; row <= y2; row++) {
+			for(int col = x1; col <= x2; col++) {
+				this.screenView[row][col].highlighted = true;
+			}
+		}
+	}
+
+	/**
+	 * Un-highlight the entire screen area of any previous mouse selection.
+	 * 
+	 */
+	public void unHighlight() {
+		for(int row = 0; row < this.numScreenRows; row++) {
+			for(int col = 0; col < this.numScreenColumns; col++) {
+				this.screenView[row][col].highlighted = false;
+			}
+		}
+	}
+
+	/**
 	 * Resize the JFrame to a new size so that users can alter the size based on their
 	 * needs.
 	 * 
@@ -708,7 +778,7 @@ public class SwingTerminal {
 			// initialize the new screen view
 			TerminalCharacter newScreenView[][] = new TerminalCharacter[newRows][newColumns];
 			for(int row = 0; row < newRows; row++) {
-				Arrays.fill(newScreenView[row], this.emptyCharacter);
+				clearRow(newScreenView[row]);
 			}
 			
 			synchronized (CHANGE_MUTEX) {
@@ -731,6 +801,8 @@ public class SwingTerminal {
 			// reset the jframe size
 			this.hostFrame.setSize(this.renderer.getPreferredSize());			
 
+			this.hostFrame.pack();
+			
 			// start the re-rendering process
 			this.refresh();
 		}
@@ -777,6 +849,32 @@ public class SwingTerminal {
 		for(char ch : chars) {
 			this.inputKeys.add(new InputKey(ch));
 		}
+	}
+
+	/**
+	 * Read the text inside the given bounding box.
+	 * 
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 * @return
+	 */
+	public void copyTextToClipboard(int x1, int y1, int x2, int y2) {
+		StringBuilder builder = new StringBuilder();
+		
+		for(int row = y1; row <= y2; row++) {
+			for(int col = x1; col <= x2; col++) {
+				builder.append(this.screenView[row][col].character);
+			}
+			
+			if(y1 != y2) {
+				builder.append(ConsolesConstants.NEW_LINE);
+			}
+		}
+		
+		String text = builder.toString();
+		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
 	}
 
 }

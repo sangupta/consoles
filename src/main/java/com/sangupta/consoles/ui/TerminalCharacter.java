@@ -29,13 +29,19 @@ import java.awt.Color;
  * @author sangupta
  *
  */
-public class TerminalCharacter {
+public class TerminalCharacter implements Cloneable {
 	
 	public char character = ' ';
 	
 	public Color foreground;
 	
 	public Color background;
+	
+	/**
+	 * Keeps track of whether the character has been highlighted using a mouse
+	 * for selection.
+	 */
+	public boolean highlighted = false;
 	
 	/**
 	 * Default constructor
@@ -54,6 +60,18 @@ public class TerminalCharacter {
 		this.character = character;
 		this.foreground = foreground;
 		this.background = background;
+	}
+	
+	@Override
+	public TerminalCharacter clone() {
+		TerminalCharacter tc = new TerminalCharacter();
+		
+		tc.character = this.character;
+		tc.foreground = this.foreground;
+		tc.background = this.background;
+		tc.highlighted = false;
+		
+		return tc;
 	}
 
 }
