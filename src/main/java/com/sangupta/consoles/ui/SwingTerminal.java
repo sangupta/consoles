@@ -216,9 +216,9 @@ public class SwingTerminal {
 		
 		this.hostFrame.setLocationByPlatform(true);
 
-		this.hostFrame.setResizable(false);
+		this.hostFrame.setResizable(true);
 		this.hostFrame.setSize(this.renderer.getPreferredSize());
-		// this.hostFrame.setResizable(true);
+		
 		this.hostFrame.pack();
 
 		// add the closing handler for the terminal
@@ -233,32 +233,31 @@ public class SwingTerminal {
 		
 		this.hostFrame.setVisible(true);
 		this.hostFrame.pack();
-		
-		// add resize listener to the jframe
-//		SwingUtilities.invokeLater(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//				hostFrame.addComponentListener(new ComponentAdapter() {
-//					
-//					@Override
-//					public void componentResized(ComponentEvent e) {
-//						super.componentResized(e);
-//						
-//						if(!e.getComponent().isShowing()) {
-//							return;
-//						}
-//						
-//						Dimension dimension = e.getComponent().getSize();
-//						int[] size = renderer.getSizeInCharacterBlocks(dimension);
-//						
-//						resize(size[0], size[1]);
-//					}
-//					
-//				});
-//			}
-//			
-//		});
+
+		// add the resize handler
+		hostFrame.addComponentListener(new ComponentAdapter() {
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				if(!e.getComponent().isShowing()) {
+					return;
+				}
+				
+				Dimension dimension = e.getComponent().getSize();
+				int[] size = renderer.getSizeInCharacterBlocks(dimension);
+				
+				resize(size[0] - 2, size[1] - 2);
+				
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						hostFrame.pack();
+					}
+				});
+			}
+			
+		});
 
 		// set it only in the last
 		// a resize event may be fired before this method completes 
@@ -751,62 +750,56 @@ public class SwingTerminal {
 	 * @param newColumns
 	 */
 	public void resize(final int newRows, final int newColumns) {
-		return;
-//		if(!this.initialized) {
-//			return;
-//		}
-//		
-//		if(newRows <= 0) {
-//			throw new IllegalArgumentException("Number of rows cannot be less than or equal to zero.");
-//		}
-//		
-//		if(newColumns <= 0) {
-//			throw new IllegalArgumentException("Number of rows cannot be less than or equal to zero.");
-//		}
-//		
-//		synchronized (RESIZE_MUTEX) {
-//			if(newRows == this.numScreenRows && newColumns == this.numScreenColumns) {
-//				// there is nothing to do - we are the same size
-//				return;
-//			}
-//
-//			if(newRows < this.numScreenRows || newColumns < this.numScreenColumns) {
-//				// TODO: we currently do not support shrinking of the frame
-//				this.hostFrame.setSize(this.renderer.getPreferredSize());
-//				return;
-//			}
-//			
-//			// initialize the new screen view
-//			TerminalCharacter newScreenView[][] = new TerminalCharacter[newRows][newColumns];
-//			for(int row = 0; row < newRows; row++) {
-//				clearRow(newScreenView[row]);
-//			}
-//			
-//			synchronized (CHANGE_MUTEX) {
-//				// fill this array with the current data
-//				for(int row = 0; row < this.numScreenRows; row++) {
-//					for(int col = 0; col < this.numScreenColumns; col++) {
-//						newScreenView[row][col] = this.screenView[row][col];
-//					}
-//				}
-//				
-//				// set the properties
-//				this.screenView = newScreenView;
-//				this.numScreenRows = newRows;
-//				this.numScreenColumns = newColumns;
-//
-//				// rebuild the renderer
-//				this.renderer.resizeRenderer(newScreenView, newRows, newColumns);
-//			}
-//			
-//			// reset the jframe size
-//			this.hostFrame.setSize(this.renderer.getPreferredSize());			
-//
-//			this.hostFrame.pack();
-//			
-//			// start the re-rendering process
-//			this.refresh();
-//		}
+		if(!this.initialized) {
+			return;
+		}
+		
+		if(newRows <= 0) {
+			throw new IllegalArgumentException("Number of rows cannot be less than or equal to zero.");
+		}
+		
+		if(newColumns <= 0) {
+			throw new IllegalArgumentException("Number of rows cannot be less than or equal to zero.");
+		}
+		
+		synchronized (RESIZE_MUTEX) {
+			if(newRows == this.numScreenRows && newColumns == this.numScreenColumns) {
+				// there is nothing to do - we are the same size
+				return;
+			}
+
+			if(newRows < this.numScreenRows || newColumns < this.numScreenColumns) {
+				// TODO: we currently do not support shrinking of the frame
+				this.hostFrame.setSize(this.renderer.getPreferredSize());
+				return;
+			}
+			
+			// initialize the new screen view
+			TerminalCharacter newScreenView[][] = new TerminalCharacter[newRows][newColumns];
+			for(int row = 0; row < newRows; row++) {
+				clearRow(newScreenView[row]);
+			}
+			
+			synchronized (CHANGE_MUTEX) {
+				// fill this array with the current data
+				for(int row = 0; row < this.numScreenRows; row++) {
+					for(int col = 0; col < this.numScreenColumns; col++) {
+						newScreenView[row][col] = this.screenView[row][col];
+					}
+				}
+				
+				// set the properties
+				this.screenView = newScreenView;
+				this.numScreenRows = newRows;
+				this.numScreenColumns = newColumns;
+
+				// rebuild the renderer
+				this.renderer.resizeRenderer(newScreenView, newRows, newColumns);
+			}
+			
+			// start the re-rendering process
+			this.refresh();
+		}
 	}
 
 	/**
