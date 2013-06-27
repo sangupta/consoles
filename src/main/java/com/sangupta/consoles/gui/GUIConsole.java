@@ -27,6 +27,8 @@ import java.io.OutputStream;
 import java.io.Writer;
 
 import com.sangupta.consoles.IConsole;
+import com.sangupta.consoles.core.InputKey;
+import com.sangupta.consoles.core.KeyTrapHandler;
 
 /**
  * 
@@ -112,6 +114,12 @@ public class GUIConsole implements IConsole {
 
 	@Override
 	public void addShutdownHook(Runnable runnable) {
+		
+	}
+
+	@Override
+	public void addKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler) {
+		// TODO Auto-generated method stub
 		
 	}
 

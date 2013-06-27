@@ -29,6 +29,8 @@ import java.io.Writer;
 import jline.console.ConsoleReader;
 
 import com.sangupta.consoles.IConsole;
+import com.sangupta.consoles.core.InputKey;
+import com.sangupta.consoles.core.KeyTrapHandler;
 
 /**
  * A normal console implementation that works in the shell of the operating
@@ -192,6 +194,12 @@ public class PureConsole implements IConsole {
 
 	@Override
 	public void addShutdownHook(Runnable runnable) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler) {
 		// TODO Auto-generated method stub
 		
 	}

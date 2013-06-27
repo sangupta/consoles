@@ -26,6 +26,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 
+import com.sangupta.consoles.core.InputKey;
+import com.sangupta.consoles.core.KeyTrapHandler;
+
 /**
  * Defines the contract for all shell implementations. Shell
  * implementations can be JLine-based, or Swing-based or entirely
@@ -143,5 +146,12 @@ public interface IConsole extends Flushable {
 	 * @param runnable
 	 */
 	public void addShutdownHook(Runnable runnable);
+
+	/**
+	 * 
+	 * @param inputKey
+	 * @param keyTrapHandler
+	 */
+	public void addKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler);
 
 }

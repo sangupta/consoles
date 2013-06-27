@@ -31,6 +31,7 @@ import com.sangupta.consoles.core.ConsoleInputStream;
 import com.sangupta.consoles.core.ConsoleOutputStream;
 import com.sangupta.consoles.core.ConsoleWriter;
 import com.sangupta.consoles.core.InputKey;
+import com.sangupta.consoles.core.KeyTrapHandler;
 
 /**
  * An implementation of the UI console. Mimicks the default shell-based consoles
@@ -225,6 +226,11 @@ public class UIConsole implements IConsole {
 	@Override
 	protected void finalize() throws Throwable {
 		this.shutdown();
+	}
+
+	@Override
+	public void addKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler) {
+		this.terminal.addKeyTrap(inputKey, keyTrapHandler);
 	}
 
 }

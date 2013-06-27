@@ -56,4 +56,35 @@ public class InputKey {
 		this.ctrlPressed = ctrlPressed;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null) {
+			return false;
+		}
+		
+		if(this == obj) {
+			return true;
+		}
+		
+		if(!(obj instanceof InputKey)) {
+			return false;
+		}
+		
+		InputKey key = (InputKey) obj;
+		if(this.specialKey != null) {
+			return this.specialKey == key.specialKey;
+		}
+		
+		return (this.ch == key.ch) && (this.ctrlPressed == key.ctrlPressed) && (this.altPressed == key.altPressed);
+	}
+	
+	@Override
+	public int hashCode() {
+		if(this.specialKey != null) {
+			this.specialKey.hashCode();
+		}
+		
+		return this.ch;
+	}
+	
 }

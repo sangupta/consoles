@@ -37,13 +37,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import com.sangupta.consoles.ConsolesConstants;
 import com.sangupta.consoles.core.InputKey;
+import com.sangupta.consoles.core.KeyTrapHandler;
 import com.sangupta.consoles.core.ScreenPosition;
 
 /**
@@ -165,6 +168,11 @@ public class SwingTerminal {
 	private final MouseHandler mouseHandler;
 	
 	/**
+	 * Store all key trap handlers here
+	 */
+	private final ConcurrentMap<InputKey, List<KeyTrapHandler>> keyTrapHandlers;
+	
+	/**
 	 * Default constructor - uses the default number of rows and columns
 	 * to construct and instance.
 	 * 
@@ -189,6 +197,8 @@ public class SwingTerminal {
 		if(rows <= 0) {
 			rows = DEFAULT_ROWS;
 		}
+		
+		this.keyTrapHandlers = new ConcurrentHashMap<InputKey, List<KeyTrapHandler>>();
 		
 		this.numScreenRows = rows;
 		this.numScreenColumns = columns;
@@ -306,6 +316,23 @@ public class SwingTerminal {
 	 */
 	public void setTitle(String title) {
 		this.hostFrame.setTitle(title);
+	}
+	
+	/**
+	 * 
+	 * @param inputKey
+	 * @param keyTrapHandler
+	 */
+	public void addKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler) {
+		List<KeyTrapHandler> handlers;
+		if(this.keyTrapHandlers.containsKey(inputKey)) {
+			handlers = this.keyTrapHandlers.get(inputKey);
+		} else {
+			handlers = new ArrayList<KeyTrapHandler>();
+			this.keyTrapHandlers.put(inputKey, handlers);
+		}
+		
+		handlers.add(keyTrapHandler);
 	}
 	
 	/**
@@ -663,6 +690,20 @@ public class SwingTerminal {
 			}
 			
 			key = this.inputKeys.poll();
+		}
+		
+		// check if we have a key trap handler over this key
+		boolean hasTrap = this.keyTrapHandlers.containsKey(key);
+		if(hasTrap) {
+			List<KeyTrapHandler> handlers = this.keyTrapHandlers.get(key);
+
+			boolean bubbleEvent = true;
+			for(KeyTrapHandler handler : handlers) {
+				bubbleEvent = handler.handleKeyInvocation(key);
+				if(!bubbleEvent) {
+					continue;
+				}
+			}
 		}
 		
 		if(echo) {
