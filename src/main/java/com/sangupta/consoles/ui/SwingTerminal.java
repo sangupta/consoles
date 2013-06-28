@@ -173,6 +173,11 @@ public class SwingTerminal {
 	private final ConcurrentMap<InputKey, List<KeyTrapHandler>> keyTrapHandlers;
 	
 	/**
+	 * Indicates whether we have added any keytraps or not
+	 */
+	private boolean hasKeyTraps = false;
+	
+	/**
 	 * Default constructor - uses the default number of rows and columns
 	 * to construct and instance.
 	 * 
@@ -333,6 +338,8 @@ public class SwingTerminal {
 		}
 		
 		handlers.add(keyTrapHandler);
+		
+		this.hasKeyTraps = true;
 	}
 	
 	/**
@@ -693,15 +700,17 @@ public class SwingTerminal {
 		}
 		
 		// check if we have a key trap handler over this key
-		boolean hasTrap = this.keyTrapHandlers.containsKey(key);
-		if(hasTrap) {
-			List<KeyTrapHandler> handlers = this.keyTrapHandlers.get(key);
-
-			boolean bubbleEvent = true;
-			for(KeyTrapHandler handler : handlers) {
-				bubbleEvent = handler.handleKeyInvocation(key);
-				if(!bubbleEvent) {
-					continue;
+		if(this.hasKeyTraps) {
+			boolean hasTrap = this.keyTrapHandlers.containsKey(key);
+			if(hasTrap) {
+				List<KeyTrapHandler> handlers = this.keyTrapHandlers.get(key);
+		
+				boolean bubbleEvent = true;
+				for(KeyTrapHandler handler : handlers) {
+					bubbleEvent = handler.handleKeyInvocation(key);
+					if(!bubbleEvent) {
+						continue;
+					}
 				}
 			}
 		}
