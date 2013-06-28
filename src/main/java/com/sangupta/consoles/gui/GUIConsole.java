@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 
-import com.sangupta.consoles.IConsole;
+import com.sangupta.consoles.core.AbstractConsole;
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.KeyTrapHandler;
 
@@ -35,7 +35,7 @@ import com.sangupta.consoles.core.KeyTrapHandler;
  * @author sangupta
  *
  */
-public class GUIConsole implements IConsole {
+public class GUIConsole extends AbstractConsole {
 
 	@Override
 	public void clearScreen() {
@@ -88,7 +88,7 @@ public class GUIConsole implements IConsole {
 	}
 
 	@Override
-	public void shutdown() {
+	protected void shutdownConsole() {
 		
 	}
 

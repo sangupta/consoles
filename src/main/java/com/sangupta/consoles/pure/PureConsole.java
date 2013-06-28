@@ -28,7 +28,7 @@ import java.io.Writer;
 
 import jline.console.ConsoleReader;
 
-import com.sangupta.consoles.IConsole;
+import com.sangupta.consoles.core.AbstractConsole;
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.KeyTrapHandler;
 
@@ -39,7 +39,7 @@ import com.sangupta.consoles.core.KeyTrapHandler;
  * @author sangupta
  *
  */
-public class PureConsole implements IConsole {
+public class PureConsole extends AbstractConsole {
 	
 	protected ConsoleReader consoleReader;
 	
@@ -165,10 +165,11 @@ public class PureConsole implements IConsole {
 	@Override
 	public void setWindowTitle(String title) {
 		// TODO: throw new RuntimeException("not yet implemented");
+		// this.consoleReader.set
 	}
 
 	@Override
-	public void shutdown() {
+	protected void shutdownConsole() {
 		this.consoleReader.shutdown();
 	}
 
@@ -195,7 +196,6 @@ public class PureConsole implements IConsole {
 	@Override
 	public void addShutdownHook(Runnable runnable) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

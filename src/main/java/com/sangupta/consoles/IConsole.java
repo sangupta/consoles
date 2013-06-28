@@ -154,4 +154,34 @@ public interface IConsole extends Flushable {
 	 */
 	public void addKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler);
 
+	/**
+	 * Switch the original streams with the ones provided by the console.
+	 * 
+	 */
+	public void switchStreams();
+	
+	/**
+	 * Switch the specified original streams with the ones provided by the console.
+	 * 
+	 * @param inStream
+	 * @param outStream
+	 * @param errorStream
+	 */
+	public void switchStreams(boolean inStream, boolean outStream, boolean errorStream);
+	
+	/**
+	 * Restore the original streams.
+	 * 
+	 */
+	public void restoreStreams();
+	
+	/**
+	 * Restore the specified original streams.
+	 * 
+	 * @param inStream
+	 * @param outStream
+	 * @param errorStream
+	 */
+	public void restoreStreams(boolean inStream, boolean outStream, boolean errorStream);
+	
 }

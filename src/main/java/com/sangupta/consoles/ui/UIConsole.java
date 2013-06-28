@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 
-import com.sangupta.consoles.IConsole;
+import com.sangupta.consoles.core.AbstractConsole;
 import com.sangupta.consoles.core.ConsoleInputStream;
 import com.sangupta.consoles.core.ConsoleOutputStream;
 import com.sangupta.consoles.core.ConsoleWriter;
@@ -40,7 +40,7 @@ import com.sangupta.consoles.core.KeyTrapHandler;
  * @author sangupta
  *
  */
-public class UIConsole implements IConsole {
+public class UIConsole extends AbstractConsole {
 	
 	/**
 	 * A {@link Writer} stream that can be used to output to the
@@ -183,7 +183,7 @@ public class UIConsole implements IConsole {
 	 * 
 	 */
 	@Override
-	public void shutdown() {
+	protected void shutdownConsole() {
 		this.terminal.closeTerminal();
 	}
 
