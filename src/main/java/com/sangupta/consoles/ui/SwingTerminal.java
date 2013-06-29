@@ -21,6 +21,7 @@
 
 package com.sangupta.consoles.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
@@ -42,7 +43,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollBar;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import com.sangupta.consoles.ConsolesConstants;
 import com.sangupta.consoles.core.InputKey;
@@ -177,6 +181,10 @@ public class SwingTerminal {
 	 */
 	private boolean hasKeyTraps = false;
 	
+	private final JScrollBar verticalScrollBar;
+	
+	private final JScrollBar horizontalScrollBar;
+	
 	/**
 	 * Default constructor - uses the default number of rows and columns
 	 * to construct and instance.
@@ -196,6 +204,20 @@ public class SwingTerminal {
 	 * @param rows
 	 */
 	public SwingTerminal(int columns, int rows) {
+		// set system look and feel
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (InstantiationException e1) {
+			e1.printStackTrace();
+		} catch (IllegalAccessException e1) {
+			e1.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e1) {
+			e1.printStackTrace();
+		}
+		
+		// validate number of rows and columns
 		if(columns <= 0) {
 			columns = DEFAULT_COLUMNS;
 		}
@@ -209,6 +231,8 @@ public class SwingTerminal {
 		this.numScreenColumns = columns;
 		
 		this.hostFrame = new JFrame();
+		BorderLayout bl = new BorderLayout();
+		this.hostFrame.setLayout(bl);
 		
 		this.emptyCharacter = new TerminalCharacter((char) 0, FOREGROUND_COLOR, BACKGROUND_COLOR);
 		this.screenView = new TerminalCharacter[rows][columns];
@@ -225,6 +249,19 @@ public class SwingTerminal {
 		
 		// initialize
 		this.hostFrame.getContentPane().add(this.renderer);
+		
+		// add scroll bars
+		this.horizontalScrollBar = new JScrollBar();
+		this.horizontalScrollBar.setOrientation(JScrollBar.HORIZONTAL);
+	    this.hostFrame.getContentPane().add(horizontalScrollBar, BorderLayout.SOUTH);
+		
+	    this.verticalScrollBar = new JScrollBar();
+	    this.hostFrame.getContentPane().add(verticalScrollBar, BorderLayout.EAST);
+	    
+	    this.hostFrame.validate();
+		
+		// pack up - this is required so that
+		// rendered can compute its preferred size
 		this.hostFrame.pack();
 		
 		this.hostFrame.addKeyListener(new InputKeyListener(this.inputKeys));
@@ -248,7 +285,11 @@ public class SwingTerminal {
 		
 		this.hostFrame.setVisible(true);
 		this.hostFrame.pack();
-
+		
+		// compute the height of the horizontal scroll bar
+		final int hScrollHeight = this.horizontalScrollBar.getHeight();
+		final int vScrollWidth = this.verticalScrollBar.getWidth();
+		
 		// add the resize handler
 		hostFrame.addComponentListener(new ComponentAdapter() {
 			
@@ -257,17 +298,26 @@ public class SwingTerminal {
 				if(!e.getComponent().isShowing()) {
 					return;
 				}
+
+				// this is the dimension of the jframe without the borders
+				Dimension dimension = ((JFrame) e.getSource()).getContentPane().getSize();
 				
-				Dimension dimension = e.getComponent().getSize();
+				// subtract the height and width of scroll bars as applicable
+				dimension.height -= hScrollHeight;
+				dimension.width -= vScrollWidth;
+
+				// now we need to set the size of the renderer
 				int[] size = renderer.getSizeInCharacterBlocks(dimension);
 				
-				resize(size[0] - 2, size[1] - 2);
+				// set the renderer to the correct size
+				resize(size[0], size[1]);
 				
 				SwingUtilities.invokeLater(new Runnable() {
 					
 					@Override
 					public void run() {
 						hostFrame.pack();
+						hostFrame.repaint();
 					}
 				});
 			}
@@ -820,6 +870,8 @@ public class SwingTerminal {
 
 			if(newRows < this.numScreenRows || newColumns < this.numScreenColumns) {
 				// TODO: we currently do not support shrinking of the frame
+				// TODO: this needs to be fixed for scroll bars
+				
 				this.hostFrame.setSize(this.renderer.getPreferredSize());
 				return;
 			}
