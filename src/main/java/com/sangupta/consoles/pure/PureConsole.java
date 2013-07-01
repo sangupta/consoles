@@ -31,6 +31,7 @@ import jline.console.ConsoleReader;
 import com.sangupta.consoles.core.AbstractConsole;
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.KeyTrapHandler;
+import com.sangupta.consoles.core.WriterOutputStream;
 
 /**
  * A normal console implementation that works in the shell of the operating
@@ -40,12 +41,25 @@ import com.sangupta.consoles.core.KeyTrapHandler;
  *
  */
 public class PureConsole extends AbstractConsole {
-	
+
+	/**
+	 * The JLine based {@link ConsoleReader} instance unique to this console
+	 */
 	protected ConsoleReader consoleReader;
 	
+	/**
+	 * The output stream for this console reader
+	 */
+	protected OutputStream myOutputStream;
+	
+	/**
+	 * Constructor
+	 */
 	public PureConsole() {
 		try {
 			this.consoleReader = new ConsoleReader();
+			
+			this.myOutputStream = new WriterOutputStream(this.getWriter());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -185,6 +199,7 @@ public class PureConsole extends AbstractConsole {
 
 	@Override
 	public OutputStream getOutputStream() {
+		// return this.myOutputStream;
 		return null;
 	}
 

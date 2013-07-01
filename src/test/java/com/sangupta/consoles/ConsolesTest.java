@@ -21,9 +21,6 @@
 
 package com.sangupta.consoles;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.Writer;
 
 /**
  * Test class for Consoles.
@@ -34,15 +31,22 @@ import java.io.Writer;
 public class ConsolesTest {
 	
 	public static void main(String[] args) throws Exception {
-		IConsole console = Consoles.getConsole(ConsoleType.BestEffort);
+		final IConsole console = Consoles.getConsole(ConsoleType.BestEffort);
+		
+		console.switchStreams();
 		console.setWindowTitle("My Console");
 		
-		console.print("Enter name: ");
-		String line = console.readLine();
-		System.out.println("Line: " + line);
-
-		Writer writer = console.getWriter();
-		writer.write("another line that i wanted to print");
+		do {
+			console.print("Enter name: ");
+			String line = console.readLine();
+			System.out.println("Line: " + line);
+			
+			if("exit".equals(line)) {
+				break;
+			}
+		} while(true);
+		
+		console.shutdown();
 		
 //		BufferedReader reader = new BufferedReader(new InputStreamReader(console.getInputStream()));
 //		line = reader.readLine();

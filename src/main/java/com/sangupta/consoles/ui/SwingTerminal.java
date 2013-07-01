@@ -41,9 +41,11 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -67,9 +69,19 @@ public class SwingTerminal {
 	private static final int DEFAULT_COLUMNS = 80;
 	
 	/**
+	 * Number of maximum columns in the buffer in a terminal
+	 */
+	private static final int MAX_DEFAULT_COLUMNS = 80;
+	
+	/**
 	 * Number of default rows in a terminal
 	 */
 	private static final int DEFAULT_ROWS = 25;
+	
+	/**
+	 * Number of maximum rows in the buffer in a terminal
+	 */
+	private static final int MAX_DEFAULT_ROWS = 100;
 	
 	/**
 	 * Default background color for a terminal
@@ -114,6 +126,11 @@ public class SwingTerminal {
 	private TerminalCharacter screenView[][];
 	
 	/**
+	 * Holds the current location of visible area in the screen
+	 */
+	private AtomicInteger screenLocationRow = new AtomicInteger(0);
+	
+	/**
 	 * Holds the current position of the cursor
 	 */
 	private final ScreenPosition cursorPosition;
@@ -150,9 +167,19 @@ public class SwingTerminal {
 	private int numScreenRows;
 	
 	/**
+	 * Number of rows that are can be held in buffer.
+	 */
+	private int numBufferRows;
+	
+	/**
 	 * Number of columns that should be present on screen.
 	 */
 	private int numScreenColumns;
+	
+	/**
+	 * Number of columns that can be held in buffer
+	 */
+	private int numBufferColumns;
 	
 	/**
 	 * Holds the list of all shutdown hooks that have been added to this terminal.
@@ -194,6 +221,10 @@ public class SwingTerminal {
 		this(DEFAULT_COLUMNS, DEFAULT_ROWS);
 	}
 	
+	public SwingTerminal(int columns, int rows) {
+		this(columns, rows, MAX_DEFAULT_COLUMNS, MAX_DEFAULT_ROWS);
+	}
+	
 	/**
 	 * Construct an instance of Swing based terminal instance with the given
 	 * number of rows and columns. The pixel-size of the instance is obtained
@@ -203,7 +234,7 @@ public class SwingTerminal {
 	 * @param columns
 	 * @param rows
 	 */
-	public SwingTerminal(int columns, int rows) {
+	public SwingTerminal(int columns, int rows, final int maxColumns, final int maxRows) {
 		// set system look and feel
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -229,21 +260,24 @@ public class SwingTerminal {
 		
 		this.numScreenRows = rows;
 		this.numScreenColumns = columns;
+		this.numBufferColumns = maxColumns;
+		this.numBufferRows = maxRows;
 		
 		this.hostFrame = new JFrame();
 		BorderLayout bl = new BorderLayout();
 		this.hostFrame.setLayout(bl);
 		
 		this.emptyCharacter = new TerminalCharacter((char) 0, FOREGROUND_COLOR, BACKGROUND_COLOR);
-		this.screenView = new TerminalCharacter[rows][columns];
 		
-		// initialize screen view
+		this.screenView = new TerminalCharacter[this.numBufferRows][this.numBufferColumns];
+
+		// initialize screen view and the buffer view
 		for(int row = 0; row < this.numScreenRows; row++) {
 			clearRow(this.screenView[row]);
 		}
 		
 		this.cursorPosition = new ScreenPosition();
-		this.renderer = new Renderer(this.numScreenColumns, this.numScreenRows, this.screenView, this.cursorPosition);
+		this.renderer = new Renderer(this.numScreenColumns, this.numScreenRows, this.screenView, this.cursorPosition, this.screenLocationRow);
 		
 		this.inputKeys = new ConcurrentLinkedQueue<InputKey>();
 		
@@ -334,6 +368,11 @@ public class SwingTerminal {
 		this.mouseHandler = new MouseHandler(this);
 		this.renderer.addMouseListener(this.mouseHandler);
 		this.renderer.addMouseMotionListener(this.mouseHandler);
+		
+		// add scroll bar handlers
+		// suppose we can display a max of 1000 rows
+		this.horizontalScrollBar.setValues(0, this.numScreenColumns, 0, this.numBufferColumns);
+		this.verticalScrollBar.setValues(0, this.numScreenRows, 0, this.numBufferRows);
 	}
 	
 	/**
@@ -409,14 +448,19 @@ public class SwingTerminal {
 			
 			// ENTER
 			if(key.ch == '\n' && !key.altPressed && !key.ctrlPressed) {
-				int currentRow = this.cursorPosition.getRow();
-				currentRow++;
-				if(currentRow == this.numScreenRows) {
-					scrollUp();
-					currentRow--;
-				}
-				
-				this.cursorPosition.setPosition(currentRow, 0);
+//				int currentRow = this.cursorPosition.getRow();
+//				currentRow++;
+//				if(currentRow == this.numBufferRows) {
+//					scrollUp();
+//					currentRow--;
+//				} else if(currentRow >= this.numScreenRows) {
+//					this.screenLocationRow.incrementAndGet();
+//					this.renderer.repaint();
+//				}
+//				
+//				this.cursorPosition.setPosition(currentRow, 0);
+				// TODO: fix this to just move one row
+				this.write("\n");
 				break;
 			}
 			
@@ -647,19 +691,36 @@ public class SwingTerminal {
 			if(col == this.numScreenColumns) {
 				col = 0;
 				row++;
-			}
-			
-			// check if we need to move to next line
-			if(row == this.numScreenRows) {
-				// scroll up
-				scrollUp();
-				row--;
+
+				// check if we need to move to next line
+				if(row == this.numBufferRows) {
+					// scroll up
+					scrollUp();
+					row--;
+				} else if(row >= this.numScreenRows) {
+					incrementScreenLocation(1);
+				}
 			}
 			
 			this.cursorPosition.setPosition(row, col);
 		}
 	}
 	
+	private void incrementScreenLocation(int i) {
+		final int location = this.screenLocationRow.incrementAndGet();
+		
+//		SwingUtilities.invokeLater(new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//				SwingTerminal.this.verticalScrollBar.setValues(location, SwingTerminal.this.numScreenRows, 0, SwingTerminal.this.numBufferRows);
+//				SwingTerminal.this.verticalScrollBar.setAlignmentY((float) location / (SwingTerminal.this.numBufferRows - SwingTerminal.this.numScreenRows));
+//				SwingTerminal.this.renderer.repaint();
+//				
+//			}
+//		});
+	}
+
 	/**
 	 * Method that will scroll the window up by one row.
 	 * 

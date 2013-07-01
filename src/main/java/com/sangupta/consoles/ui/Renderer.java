@@ -30,6 +30,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JComponent;
 import javax.swing.Timer;
@@ -114,18 +115,25 @@ public class Renderer extends JComponent {
 	private boolean cursorBlinkVisible = false;
 	
 	/**
+	 * Current location of visisble area in the buffer view
+	 */
+	private AtomicInteger screenLocationRow;
+	
+	/**
 	 * Create an instance of {@link Renderer} for the given number of rows and columns.
 	 * 
 	 * @param columns
 	 * @param rows
 	 */
-	public Renderer(int columns, int rows, TerminalCharacter screenView[][], ScreenPosition cursorPosition) {
+	public Renderer(int columns, int rows, TerminalCharacter screenView[][], ScreenPosition cursorPosition, AtomicInteger screenLocationRow) {
 		this.numColumns = columns;
 		this.numRows = rows;
 		this.screenView = screenView;
 		this.cursorPosition = cursorPosition;
 		this.cursorBlinkTimer = new Timer(500, new CursorBlinkAction());
 		this.cursorBlinkTimer.start();
+		
+		this.screenLocationRow = screenLocationRow;
 	}
 	
 	/**
@@ -163,9 +171,11 @@ public class Renderer extends JComponent {
 		TerminalCharacter currentChar;
 		String charString;
 		
+		final int rowDelta = this.screenLocationRow.get();
+		
 		for(int row = 0; row < this.numRows; row++) {
 			for(int column = 0; column < this.numColumns; column++) {
-				currentChar = this.screenView[row][column];
+				currentChar = this.screenView[row + rowDelta][column];
 				
 				if(currentChar != null) {
 					if(currentChar.character == 0) {
@@ -290,5 +300,5 @@ public class Renderer extends JComponent {
 		
 		return new ScreenPosition(row, col);
 	}
-	
+
 }
