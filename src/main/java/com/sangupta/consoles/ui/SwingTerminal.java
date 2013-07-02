@@ -388,11 +388,8 @@ public class SwingTerminal {
 		this.mouseHandler = new MouseHandler(this);
 		this.renderer.addMouseListener(this.mouseHandler);
 		this.renderer.addMouseMotionListener(this.mouseHandler);
-		
-		// add scroll bar handlers
-		// suppose we can display a max of 1000 rows
-		this.horizontalScrollBar.setValues(0, this.numScreenColumns, 0, this.numBufferColumns);
-		this.verticalScrollBar.setValues(0, this.numScreenRows, 0, this.numBufferRows);
+
+		resetScrollBars();
 	}
 	
 	/**
@@ -986,6 +983,9 @@ public class SwingTerminal {
 				
 				this.numScreenRows = newRows;
 				this.numScreenColumns = newColumns;
+				
+				// update the scroll bars
+				resetScrollBars();
 
 				// rebuild the renderer
 				this.renderer.resizeRenderer(newScreenView, newRows, newColumns);
@@ -994,6 +994,15 @@ public class SwingTerminal {
 			// start the re-rendering process
 			this.refresh();
 		}
+	}
+
+	private void resetScrollBars() {
+		// add scroll bar handlers
+		// suppose we can display a max of 1000 rows
+		this.horizontalScrollBar.setValues(0, this.numScreenColumns, 0, this.numBufferColumns);
+		this.verticalScrollBar.setValues(0, this.numScreenRows, 0, this.numBufferRows);
+
+		this.verticalScrollBar.setValue(this.screenLocationRow.get());
 	}
 
 	/**
