@@ -45,7 +45,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -448,17 +447,6 @@ public class SwingTerminal {
 			
 			// ENTER
 			if(key.ch == '\n' && !key.altPressed && !key.ctrlPressed) {
-//				int currentRow = this.cursorPosition.getRow();
-//				currentRow++;
-//				if(currentRow == this.numBufferRows) {
-//					scrollUp();
-//					currentRow--;
-//				} else if(currentRow >= this.numScreenRows) {
-//					this.screenLocationRow.incrementAndGet();
-//					this.renderer.repaint();
-//				}
-//				
-//				this.cursorPosition.setPosition(currentRow, 0);
 				// TODO: fix this to just move one row
 				this.write("\n");
 				break;
@@ -622,8 +610,9 @@ public class SwingTerminal {
 		char charToWrite;
 		
 		synchronized (CHANGE_MUTEX) {
-			int col = this.cursorPosition.getColumn();
+			// write in the actual row of the buffer queue
 			int row = this.cursorPosition.getRow();
+			int col = this.cursorPosition.getColumn();
 			
 			for(int index = offset; index < length; index++) {
 				charToWrite = chars[index];
@@ -659,23 +648,31 @@ public class SwingTerminal {
 				}
 				
 				// check for next line
-				if(col == this.numScreenColumns) {
-					col = 0;
-					row++;
-				}
-				
-				// check if we need to move to next line
-				if(row == this.numScreenRows) {
-					// scroll up
-					scrollUp();
-					row--;
-				}
+				int[] vals = updateRowAndColumn(row, col);
+				row = vals[0];
+				col = vals[1];
 			}
 			
 			this.cursorPosition.setPosition(row, col);
 		}
 	}
 	
+	private int[] updateRowAndColumn(int row, int col) {
+		if(col == this.numScreenColumns) {
+			col = 0;
+			row++;
+		}
+		
+		// check if we need to move to next line
+		if(row == this.numScreenRows) {
+			// scroll up
+			scrollUp();
+			row--;
+		}
+		
+		return new int[] { row, col };
+	}
+
 	/**
 	 * 
 	 * @param ch
@@ -687,20 +684,9 @@ public class SwingTerminal {
 
 			this.screenView[row][col++] = new TerminalCharacter(ch, FOREGROUND_COLOR, BACKGROUND_COLOR);
 
-			// check for next line
-			if(col == this.numScreenColumns) {
-				col = 0;
-				row++;
-
-				// check if we need to move to next line
-				if(row == this.numBufferRows) {
-					// scroll up
-					scrollUp();
-					row--;
-				} else if(row >= this.numScreenRows) {
-					incrementScreenLocation(1);
-				}
-			}
+			int[] vals = updateRowAndColumn(row, col);
+			row = vals[0];
+			col = vals[1];
 			
 			this.cursorPosition.setPosition(row, col);
 		}
