@@ -33,8 +33,12 @@ public class ConsolesTest {
 	public static void main(String[] args) throws Exception {
 		final IConsole console = Consoles.getConsole(ConsoleType.BestEffort);
 		
-		console.switchStreams();
+		console.switchStreams(true, true, false);
 		console.setWindowTitle("My Console");
+		
+		for(int i = 0; i < 50; i++) {
+			System.out.println("Line number " + i);
+		}
 		
 		do {
 			console.print("Enter name: ");

@@ -82,7 +82,7 @@ public class SwingTerminal {
 	/**
 	 * Number of maximum rows in the buffer in a terminal
 	 */
-	private static final int MAX_DEFAULT_ROWS = 50;
+	private static final int MAX_DEFAULT_ROWS = 200;
 	
 	/**
 	 * Default background color for a terminal
@@ -300,7 +300,11 @@ public class SwingTerminal {
 				// now should be the one
 				// that is event
 				final int startRow = event.getValue();
-				System.err.println("We need to scroll to another area on screen: " + startRow + "; current: " + SwingTerminal.this.screenLocationRow.get());
+				if(startRow != SwingTerminal.this.screenLocationRow.get()) {
+					SwingTerminal.this.renderer.scrollToPosition(startRow);
+				}
+				
+//				System.err.println("We need to scroll to another area on screen: " + startRow + "; current: " + SwingTerminal.this.screenLocationRow.get());
 //				SwingTerminal.this.screenLocationRow.set(startRow);
 			}
 			
@@ -699,6 +703,9 @@ public class SwingTerminal {
 	 */
 	void write(char ch) {
 		synchronized (CHANGE_MUTEX) {
+			// ask renderer to switch back to writing mode
+			this.renderer.switchToWritingMode();
+			
 			int col = this.cursorPosition.getColumn();
 			int row = this.cursorPosition.getRow();
 
@@ -946,21 +953,37 @@ public class SwingTerminal {
 			}
 			
 			// initialize the new screen view
-			TerminalCharacter newScreenView[][] = new TerminalCharacter[newRows][newColumns];
-			for(int row = 0; row < newRows; row++) {
-				clearRow(newScreenView[row]);
+			// create a new screen view only if needed
+			boolean bufferChanged = false;
+			
+			TerminalCharacter newScreenView[][] = null;
+			int rows = Math.max(newRows, this.numBufferRows);
+			int cols = Math.max(newColumns, this.numBufferColumns);
+			if(rows > this.numBufferRows || cols > this.numBufferColumns) {
+				newScreenView = new TerminalCharacter[rows][cols];
+				for(int row = 0; row < newRows; row++) {
+					clearRow(newScreenView[row]);
+				}
+				
+				bufferChanged = true;
 			}
 			
 			synchronized (CHANGE_MUTEX) {
-				// fill this array with the current data
-				for(int row = 0; row < this.numScreenRows; row++) {
-					for(int col = 0; col < this.numScreenColumns; col++) {
-						newScreenView[row][col] = this.screenView[row][col];
+				if(bufferChanged) {
+					// fill this array with the current data
+					for(int row = 0; row < this.numBufferRows; row++) {
+						for(int col = 0; col < this.numScreenColumns; col++) {
+							newScreenView[row][col] = this.screenView[row][col];
+						}
 					}
+					
+					// set the properties
+					this.screenView = newScreenView;
+					
+					this.numBufferRows = rows;
+					this.numScreenColumns = cols;
 				}
 				
-				// set the properties
-				this.screenView = newScreenView;
 				this.numScreenRows = newRows;
 				this.numScreenColumns = newColumns;
 

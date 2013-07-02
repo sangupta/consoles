@@ -115,9 +115,19 @@ public class Renderer extends JComponent {
 	private boolean cursorBlinkVisible = false;
 	
 	/**
-	 * Current location of visisble area in the buffer view
+	 * Current location of visible area in the buffer view
 	 */
-	private AtomicInteger screenLocationRow;
+	private final AtomicInteger screenLocationRow;
+	
+	/**
+	 * Current scroll position
+	 */
+	private volatile int screenScrollPosition;
+	
+	/**
+	 * Holds whether we are in writing mode or the scrolling mode
+	 */
+	private volatile boolean writingMode = true;
 	
 	/**
 	 * Create an instance of {@link Renderer} for the given number of rows and columns.
@@ -171,9 +181,19 @@ public class Renderer extends JComponent {
 		TerminalCharacter currentChar;
 		String charString;
 		
-		final int rowDelta = this.screenLocationRow.get();
+		final int rowDelta;
+		if(this.writingMode) {
+			rowDelta = this.screenLocationRow.get();
+		} else {
+			// we are in scrolling mode
+			rowDelta = this.screenScrollPosition;
+		}
 		
 		for(int row = 0; row < this.numRows; row++) {
+			if((row + rowDelta) >= this.screenView.length) {
+				break;
+			}
+			
 			for(int column = 0; column < this.numColumns; column++) {
 				currentChar = this.screenView[row + rowDelta][column];
 				
@@ -299,6 +319,15 @@ public class Renderer extends JComponent {
 		int col = (int) (point.getX() / this.characterWidth);
 		
 		return new ScreenPosition(row, col);
+	}
+
+	void switchToWritingMode() {
+		this.writingMode = true;
+	}
+	
+	void scrollToPosition(int scrollPosition) {
+		this.screenScrollPosition = scrollPosition;
+		this.writingMode = false;
 	}
 
 }
