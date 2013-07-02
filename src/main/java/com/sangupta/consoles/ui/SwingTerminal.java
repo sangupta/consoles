@@ -30,6 +30,8 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
@@ -80,7 +82,7 @@ public class SwingTerminal {
 	/**
 	 * Number of maximum rows in the buffer in a terminal
 	 */
-	private static final int MAX_DEFAULT_ROWS = 100;
+	private static final int MAX_DEFAULT_ROWS = 50;
 	
 	/**
 	 * Default background color for a terminal
@@ -289,6 +291,21 @@ public class SwingTerminal {
 	    this.hostFrame.getContentPane().add(horizontalScrollBar, BorderLayout.SOUTH);
 		
 	    this.verticalScrollBar = new JScrollBar();
+	    this.verticalScrollBar.addAdjustmentListener(new AdjustmentListener() {
+			
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent event) {
+				// the user has scrolled
+				// the current start row of the display
+				// now should be the one
+				// that is event
+				final int startRow = event.getValue();
+				System.err.println("We need to scroll to another area on screen: " + startRow + "; current: " + SwingTerminal.this.screenLocationRow.get());
+//				SwingTerminal.this.screenLocationRow.set(startRow);
+			}
+			
+		});
+	    
 	    this.hostFrame.getContentPane().add(verticalScrollBar, BorderLayout.EAST);
 	    
 	    this.hostFrame.validate();
@@ -628,7 +645,7 @@ public class SwingTerminal {
 						// compute the number of tab stops that we need to add
 						int spaces = TAB_STOP - (col % TAB_STOP);
 						if(spaces == 1) {
-							this.screenView[row][col++] = new TerminalCharacter(' ', FOREGROUND_COLOR, BACKGROUND_COLOR);
+							this.screenView[row + this.screenLocationRow.get()][col++] = new TerminalCharacter(' ', FOREGROUND_COLOR, BACKGROUND_COLOR);
 						} else {
 							// TODO: optimize this to prevent recursive call
 							this.cursorPosition.setPosition(row, col);
@@ -639,12 +656,12 @@ public class SwingTerminal {
 							this.write(spaced);
 							
 							col = this.cursorPosition.getColumn();
-							row = this.cursorPosition.getRow();
+							row = this.cursorPosition.getRow() + this.screenLocationRow.get();
 						}
 						break;
 						
 					default:
-						this.screenView[row][col++] = new TerminalCharacter(charToWrite, FOREGROUND_COLOR, BACKGROUND_COLOR);
+						this.screenView[row + this.screenLocationRow.get()][col++] = new TerminalCharacter(charToWrite, FOREGROUND_COLOR, BACKGROUND_COLOR);
 				}
 				
 				// check for next line
@@ -666,7 +683,10 @@ public class SwingTerminal {
 		// check if we need to move to next line
 		if(row == this.numScreenRows) {
 			// scroll up
-			scrollUp();
+			if(col == 0) {
+				scrollUp(row);
+			}
+			
 			row--;
 		}
 		
@@ -682,7 +702,7 @@ public class SwingTerminal {
 			int col = this.cursorPosition.getColumn();
 			int row = this.cursorPosition.getRow();
 
-			this.screenView[row][col++] = new TerminalCharacter(ch, FOREGROUND_COLOR, BACKGROUND_COLOR);
+			this.screenView[row  + this.screenLocationRow.get()][col++] = new TerminalCharacter(ch, FOREGROUND_COLOR, BACKGROUND_COLOR);
 
 			int[] vals = updateRowAndColumn(row, col);
 			row = vals[0];
@@ -692,32 +712,34 @@ public class SwingTerminal {
 		}
 	}
 	
-	private void incrementScreenLocation(int i) {
-		final int location = this.screenLocationRow.incrementAndGet();
-		
-//		SwingUtilities.invokeLater(new Runnable() {
-//			
-//			@Override
-//			public void run() {
-//				SwingTerminal.this.verticalScrollBar.setValues(location, SwingTerminal.this.numScreenRows, 0, SwingTerminal.this.numBufferRows);
-//				SwingTerminal.this.verticalScrollBar.setAlignmentY((float) location / (SwingTerminal.this.numBufferRows - SwingTerminal.this.numScreenRows));
-//				SwingTerminal.this.renderer.repaint();
-//				
-//			}
-//		});
-	}
-
 	/**
-	 * Method that will scroll the window up by one row.
+	 * Method that will scroll the window up by one row. This needs to make sure
+	 * that it increments the {@link #screenLocationRow} correctly so that renderer
+	 * can render the right thing, if buffer is not filled.
 	 * 
 	 */
-	void scrollUp() {
+	void scrollUp(int currentRow) {
+		// detect buffer overflow
+		final boolean overflow = (this.screenLocationRow.get() + this.numScreenRows) == this.numBufferRows;
+		
+		if(!overflow) {
+			
+			// buffer has not overflow
+			// we render the right place and show the cursor at the right place
+			final int scrollPosition = this.screenLocationRow.incrementAndGet();
+			this.verticalScrollBar.setValue(scrollPosition);
+			this.verticalScrollBar.validate();
+			return;
+		}
+		
+		// we have gone overboard
+		// we need to scroll all lines up
 		synchronized (CHANGE_MUTEX) {
-			for(int row = 1; row < this.numScreenRows; row++) {
+			for(int row = 1; row < this.numBufferRows; row++) {
 				this.screenView[row - 1] = this.screenView[row];
 			}
 
-			int row = this.numScreenRows - 1;
+			int row = this.numBufferRows - 1;
 			this.screenView[row] = new TerminalCharacter[this.numScreenColumns];
 			for(int index = 0; index < this.screenView[row].length; index++) {
 				this.screenView[row][index] = this.emptyCharacter.clone();
