@@ -323,11 +323,15 @@ public class Renderer extends JComponent {
 
 	void switchToWritingMode() {
 		this.writingMode = true;
+		this.validate();
+		this.repaint();
 	}
 	
 	void scrollToPosition(int scrollPosition) {
 		this.screenScrollPosition = scrollPosition;
 		this.writingMode = false;
+		this.validate();
+		this.repaint();
 	}
 
 }
