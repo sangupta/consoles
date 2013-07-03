@@ -823,7 +823,7 @@ public class SwingTerminal {
 		}
 		
 		// check if we have a key trap handler over this key
-		if(this.hasKeyTraps) {
+		if(this.hasKeyTraps && this.keyTrapHandlers != null) {
 			boolean hasTrap = this.keyTrapHandlers.containsKey(key);
 			if(hasTrap) {
 				List<KeyTrapHandler> handlers = this.keyTrapHandlers.get(key);
