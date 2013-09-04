@@ -31,10 +31,19 @@ import java.awt.Color;
  */
 public class TerminalCharacter implements Cloneable {
 	
+	/**
+	 * The character to be displayed on screen
+	 */
 	public char character = ' ';
 	
+	/**
+	 * The foreground color of the character
+	 */
 	public Color foreground;
 	
+	/**
+	 * The background color of the character
+	 */
 	public Color background;
 	
 	/**
@@ -52,7 +61,8 @@ public class TerminalCharacter implements Cloneable {
 	}
 	
 	/**
-	 * Convenience constructor
+	 * Convenience constructor to create a new {@link TerminalCharacter} and
+	 * also assign it the properties.
 	 * 
 	 * @param character
 	 */
@@ -62,6 +72,10 @@ public class TerminalCharacter implements Cloneable {
 		this.background = background;
 	}
 	
+	/**
+	 * Create a new {@link TerminalCharacter} with exactly the same properties as
+	 * this one.
+	 */
 	@Override
 	public TerminalCharacter clone() {
 		TerminalCharacter tc = new TerminalCharacter();
