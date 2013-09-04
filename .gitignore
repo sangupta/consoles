@@ -34,3 +34,4 @@ target/*
 
 # Project specific
 .settings/*
+/target
