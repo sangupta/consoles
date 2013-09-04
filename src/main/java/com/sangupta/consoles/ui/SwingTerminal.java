@@ -23,19 +23,13 @@ package com.sangupta.consoles.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.HeadlessException;
 import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -50,7 +44,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import com.sangupta.consoles.ConsolesConstants;
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.KeyTrapHandler;
 import com.sangupta.consoles.core.ScreenPosition;
@@ -88,7 +81,7 @@ public class SwingTerminal implements SwingTerminalConstants {
 	 * Holds one screen-view of information for this console.
 	 * 
 	 */
-	private TerminalCharacter screenView[][];
+	protected TerminalCharacter screenView[][];
 	
 	/**
 	 * Holds the current location of visible area in the screen
@@ -986,56 +979,4 @@ public class SwingTerminal implements SwingTerminalConstants {
 		this.shutDownHooks.add(runnable);
 	}
 	
-	/**
-	 * Handle paste action from clipboard
-	 */
-	protected void processPasteAction() {
-		String data = null;
-		try {
-			data = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-		} catch (HeadlessException e) {
-			// eat up
-		} catch (UnsupportedFlavorException e) {
-			// eat up
-		} catch (IOException e) {
-			// eat up
-		} 
-		
-		if(data == null) {
-			return;
-		}
-		
-		// paste it at current location
-		char[] chars = data.toCharArray();
-		for(char ch : chars) {
-			this.inputKeys.add(new InputKey(ch));
-		}
-	}
-
-	/**
-	 * Read the text inside the given bounding box.
-	 * 
-	 * @param x1
-	 * @param y1
-	 * @param x2
-	 * @param y2
-	 * @return
-	 */
-	public void copyTextToClipboard(int x1, int y1, int x2, int y2) {
-		StringBuilder builder = new StringBuilder();
-		
-		for(int row = y1; row <= y2; row++) {
-			for(int col = x1; col <= x2; col++) {
-				builder.append(this.screenView[row][col].character);
-			}
-			
-			if(y1 != y2) {
-				builder.append(ConsolesConstants.NEW_LINE);
-			}
-		}
-		
-		String text = builder.toString();
-		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
-	}
-
 }
