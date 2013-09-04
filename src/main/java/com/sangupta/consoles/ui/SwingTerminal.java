@@ -22,7 +22,6 @@
 package com.sangupta.consoles.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Point;
@@ -62,42 +61,7 @@ import com.sangupta.consoles.core.ScreenPosition;
  * @author sangupta
  *
  */
-public class SwingTerminal {
-	
-	/**
-	 * Number of default columns in a terminal
-	 */
-	private static final int DEFAULT_COLUMNS = 80;
-	
-	/**
-	 * Number of maximum columns in the buffer in a terminal
-	 */
-	private static final int MAX_DEFAULT_COLUMNS = 80;
-	
-	/**
-	 * Number of default rows in a terminal
-	 */
-	private static final int DEFAULT_ROWS = 25;
-	
-	/**
-	 * Number of maximum rows in the buffer in a terminal
-	 */
-	private static final int MAX_DEFAULT_ROWS = 200;
-	
-	/**
-	 * Default background color for a terminal
-	 */
-	private static final Color BACKGROUND_COLOR = new Color(0, 0, 0);
-	
-	/**
-	 * Default foreground color for a terminal
-	 */
-	private static final Color FOREGROUND_COLOR = new Color(192, 192, 192);
-	
-	/**
-	 * Default tab stops, 4 chars per tab
-	 */
-	private static final int TAB_STOP = 4;
+public class SwingTerminal implements SwingTerminalConstants {
 	
 	/**
 	 * Reference to the internal {@link JFrame} instance.
