@@ -29,12 +29,32 @@ package com.sangupta.consoles;
  */
 public enum ConsoleType {
 	
+	/**
+	 * Pure shell console which is invoked directly from an existing shell
+	 * like Windows command line, or Bash etc.
+	 * 
+	 */
 	Pure,
 	
+	/**
+	 * A simple console just like the pure console but it runs inside a
+	 * swing window to give it a UI frame.
+	 * 
+	 */
 	UI,
 	
+	/**
+	 * A complete console that is built over JavaFX technology to provide
+	 * an Eclipse like-console environment filled with colors and all.
+	 * 
+	 */
 	GUI,
 	
+	/**
+	 * Show the console based on the current OS, architecture, memory etc.
+	 * It will try to load the {@link #GUI} console first, followed by
+	 * {@link #UI} console, and lastly the {@link #Pure} console.
+	 */
 	BestEffort;
 
 }
