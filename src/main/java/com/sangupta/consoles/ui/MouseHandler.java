@@ -43,8 +43,11 @@ public class MouseHandler extends MouseInputAdapter {
 	
 	private boolean copyingMode = false;
 	
+	private final ClipboardHandler clipboardController;
+	
 	MouseHandler(SwingTerminal swingTerminal) {
 		this.terminal = swingTerminal;
+		this.clipboardController = new ClipboardHandler(this.terminal);
 	}
 
 	@Override
@@ -53,7 +56,7 @@ public class MouseHandler extends MouseInputAdapter {
 		if(e.getButton() == MouseEvent.BUTTON3) {
 			// this a paste action
 			if(!this.copyingMode) {
-				this.terminal.processPasteAction();
+				this.clipboardController.processPasteAction();
 			}
 		}
 		
@@ -99,7 +102,7 @@ public class MouseHandler extends MouseInputAdapter {
 		y2 = Math.max(start.getRow(), current.getRow());
 		
 		// read text from this as string
-		this.terminal.copyTextToClipboard(x1, y1, x2, y2);
+		this.clipboardController.copyTextToClipboard(x1, y1, x2, y2);
 
 		// clean up selection
 		this.start = null;
