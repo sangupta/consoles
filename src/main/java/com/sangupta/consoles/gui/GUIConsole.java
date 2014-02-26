@@ -36,6 +36,12 @@ import com.sangupta.consoles.core.KeyTrapHandler;
  *
  */
 public class GUIConsole extends AbstractConsole {
+	
+	private final GUIConsoleComponent consoleComponent;
+	
+	public GUIConsole(int rows, int columns) {
+		this.consoleComponent = new GUIConsoleComponent();
+	}
 
 	@Override
 	public void clearScreen() {
@@ -84,7 +90,7 @@ public class GUIConsole extends AbstractConsole {
 
 	@Override
 	public void setWindowTitle(String title) {
-		
+		this.consoleComponent.setTitle(title);
 	}
 
 	@Override
@@ -123,4 +129,13 @@ public class GUIConsole extends AbstractConsole {
 		
 	}
 
+	@Override
+	public boolean supportsResizing() {
+		return true;
+	}
+	
+	@Override
+	public void setResizingEnabled(boolean enabled) {
+		// TODO: fix this
+	}
 }

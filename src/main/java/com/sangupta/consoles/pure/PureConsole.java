@@ -219,4 +219,13 @@ public class PureConsole extends AbstractConsole {
 		
 	}
 
+	@Override
+	public boolean supportsResizing() {
+		return false;
+	}
+	
+	@Override
+	public void setResizingEnabled(boolean enabled) {
+		// do nothing as the operation is not supported
+	}
 }

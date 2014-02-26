@@ -233,4 +233,13 @@ public class UIConsole extends AbstractConsole {
 		this.terminal.addKeyTrap(inputKey, keyTrapHandler);
 	}
 
+	@Override
+	public boolean supportsResizing() {
+		return true;
+	}
+	
+	@Override
+	public void setResizingEnabled(boolean enabled) {
+//		this.terminal.setResizingEnabled(enabled);
+	}
 }

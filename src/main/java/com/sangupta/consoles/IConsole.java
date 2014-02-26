@@ -184,4 +184,15 @@ public interface IConsole extends Flushable {
 	 */
 	public void restoreStreams(boolean inStream, boolean outStream, boolean errorStream);
 	
+	/**
+	 * Returns whether this console supports resizing or not.
+	 * 
+	 * @return
+	 */
+	public boolean supportsResizing();
+	
+	/**
+	 * Enable/Disable resizing of the console, if it supports so
+	 */
+	public void setResizingEnabled(boolean enabled);
 }

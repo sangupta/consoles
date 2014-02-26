@@ -21,44 +21,35 @@
 
 package com.sangupta.consoles;
 
-
 /**
  * Test class for Consoles.
  * 
  * @author sangupta
  *
  */
-public class ConsolesTest {
+public class PureTest {
 	
-	public static void main(String[] args) throws Exception {
-		final IConsole console = Consoles.getConsole(ConsoleType.UI);
+	public static void main(String[] args) throws InterruptedException {
+		IConsole console = Consoles.getConsole(ConsoleType.Pure);
+		System.out.println("Console: " + console);
 		
-		console.switchStreams(true, true, false);
 		console.setWindowTitle("My Console");
 		
-		for(int i = 0; i < 5; i++) {
-			System.out.println("Line number " + i);
-		}
+		console.print("Enter name: ");
+		String line = console.readLine();
+		System.out.println("Name: " + line);
 		
-		do {
-			console.print("Enter name: ");
-			String line = console.readLine();
-			System.out.println("Line: " + line);
-			
-			if("exit".equals(line)) {
-				break;
-			}
-		} while(true);
+		console.print("Enter password: ");
+		char[] pass = console.readPassword();
+		System.out.println("Password: " + String.valueOf(pass));
+
+		console.print("Enter password: ");
+		pass = console.readPassword('*');
+		System.out.println("Password: " + String.valueOf(pass));
 		
-		console.shutdown();
+		console.clearScreen();
+		System.out.println("Screen cleared!");
 		
-//		BufferedReader reader = new BufferedReader(new InputStreamReader(console.getInputStream()));
-//		line = reader.readLine();
-//		System.out.println("Line2:" + line);
-//		Thread.sleep(5000);
-//		
-//		line = console.readLine();
-//		System.out.println("Line: " + line);
 	}
 
 }

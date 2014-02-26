@@ -68,7 +68,7 @@ public class Consoles {
 				return new UIConsole(rows, columns);
 
 			case GUI:
-				return new GUIConsole();
+				return new GUIConsole(rows, columns);
 
 			case BestEffort:
 			default:
@@ -80,7 +80,7 @@ public class Consoles {
 			return new PureConsole();
 		}
 
-		return new UIConsole(rows, columns); 
+		return new GUIConsole(rows, columns); 
 	}
 
 }
