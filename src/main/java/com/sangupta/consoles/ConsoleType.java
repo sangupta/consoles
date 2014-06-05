@@ -30,11 +30,17 @@ package com.sangupta.consoles;
 public enum ConsoleType {
 	
 	/**
-	 * Pure shell console which is invoked directly from an existing shell
+	 * Text shell console which is invoked directly from an existing shell
 	 * like Windows command line, or Bash etc.
 	 * 
 	 */
-	Pure,
+	Text,
+	
+	/**
+	 * Text shell console which behaves almost as a {@link ConsoleType#Text} but
+	 * also allows for ANSI based sequences and coloring using Jline framework.
+	 */
+	Ansi,
 	
 	/**
 	 * A simple console just like the pure console but it runs inside a
@@ -44,11 +50,17 @@ public enum ConsoleType {
 	UI,
 	
 	/**
-	 * A complete console that is built over JavaFX technology to provide
-	 * an Eclipse like-console environment filled with colors and all.
+	 * A complete console that is built over JavaFX/Swing technology to provide
+	 * an Eclipse like-console environment filled with colors and multiple tabs.
 	 * 
 	 */
-	GUI,
+	Tabbed,
+	
+	/**
+	 * An implementation that works as a remote console. A server runs that streams
+	 * all data to a console attached from a client.
+	 */
+	Remote,
 	
 	/**
 	 * Show the console based on the current OS, architecture, memory etc.

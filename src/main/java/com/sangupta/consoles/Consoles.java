@@ -24,7 +24,7 @@ package com.sangupta.consoles;
 import java.awt.GraphicsEnvironment;
 
 import com.sangupta.consoles.gui.GUIConsole;
-import com.sangupta.consoles.pure.PureConsole;
+import com.sangupta.consoles.text.TextConsole;
 import com.sangupta.consoles.ui.UIConsole;
 
 /**
@@ -61,13 +61,13 @@ public class Consoles {
 		}
 		
 		switch(type) {
-			case Pure:
-				return new PureConsole();
+			case Text:
+				return new TextConsole();
 			
 			case UI:
-				return new UIConsole(rows, columns);
+				return new UIConsole();
 
-			case GUI:
+			case Tabbed:
 				return new GUIConsole(rows, columns);
 
 			case BestEffort:
@@ -77,7 +77,7 @@ public class Consoles {
 		
 		// we handle the best effort mode to build up the console
 		if(GraphicsEnvironment.isHeadless()) {
-			return new PureConsole();
+			return new TextConsole();
 		}
 
 		return new GUIConsole(rows, columns); 

@@ -19,13 +19,11 @@
  * 
  */
 
-package com.sangupta.consoles.ui;
+package com.sangupta.consoles.oldui;
 
 import java.awt.event.MouseEvent;
 
 import javax.swing.event.MouseInputAdapter;
-
-import com.sangupta.consoles.core.ScreenPosition;
 
 /**
  * Handles mouse selection events.

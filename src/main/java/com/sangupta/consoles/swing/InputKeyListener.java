@@ -19,7 +19,7 @@
  * 
  */
 
-package com.sangupta.consoles.ui;
+package com.sangupta.consoles.swing;
 
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;

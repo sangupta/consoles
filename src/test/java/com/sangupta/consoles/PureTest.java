@@ -30,7 +30,7 @@ package com.sangupta.consoles;
 public class PureTest {
 	
 	public static void main(String[] args) throws InterruptedException {
-		IConsole console = Consoles.getConsole(ConsoleType.Pure);
+		IConsole console = Consoles.getConsole(ConsoleType.Text);
 		System.out.println("Console: " + console);
 		
 		console.setWindowTitle("My Console");

@@ -37,10 +37,7 @@ import com.sangupta.consoles.core.KeyTrapHandler;
  */
 public class GUIConsole extends AbstractConsole {
 	
-	private final GUIConsoleComponent consoleComponent;
-	
 	public GUIConsole(int rows, int columns) {
-		this.consoleComponent = new GUIConsoleComponent();
 	}
 
 	@Override
@@ -90,7 +87,6 @@ public class GUIConsole extends AbstractConsole {
 
 	@Override
 	public void setWindowTitle(String title) {
-		this.consoleComponent.setTitle(title);
 	}
 
 	@Override

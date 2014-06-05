@@ -21,10 +21,20 @@
 
 package com.sangupta.consoles.ui;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
 
 import com.sangupta.consoles.core.AbstractConsole;
 import com.sangupta.consoles.core.ConsoleInputStream;
@@ -32,10 +42,12 @@ import com.sangupta.consoles.core.ConsoleOutputStream;
 import com.sangupta.consoles.core.ConsoleWriter;
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.KeyTrapHandler;
+import com.sangupta.consoles.swing.KeyboardHandler;
+import com.sangupta.consoles.swing.SwingTerminalConstants;
 
 /**
- * An implementation of the UI console. Mimicks the default shell-based consoles
- * as provided in operating systems such as Windows, Mac and Linux.
+ * A Java Swing based UI terminal that mimics that actual OS terminals.
+ * Supports ANSI based colors and key sequences.
  * 
  * @author sangupta
  *
@@ -62,133 +74,164 @@ public class UIConsole extends AbstractConsole {
 	protected final ConsoleOutputStream consoleOutputStream;
 	
 	/**
-	 * Reference to the internal {@link SwingTerminal} instance.
+	 * The terminal instance being used
 	 * 
 	 */
-	protected final SwingTerminal terminal;
+	protected final UITerminal terminal;
 	
 	/**
-	 * Default constructor
+	 * The wrapper JFrame to be used
+	 * 
+	 */
+	protected final JFrame frame;
+	
+	/**
+	 * The scrolling pane to be used
+	 * 
+	 */
+	protected final JScrollPane scrollPane;
+	
+	/**
+	 * Bind keyboard related functionality to terminal
+	 */
+	protected final KeyboardHandler keyboardHandler;
+	
+	/**
+	 * Holds the list of all shutdown hooks that have been added to this terminal.
+	 * 
+	 */
+	protected List<Runnable> shutDownHooks;
+	
+	/**
+	 * Are we closing this terminal?
+	 */
+	protected volatile boolean closingTerminal = false;
+	
+	/**
+	 * Default console to be constructed
+	 * 
 	 */
 	public UIConsole() {
-		this.terminal = new SwingTerminal();
-		this.consoleWriter = new ConsoleWriter(this);
-		this.consoleInputStream = new ConsoleInputStream(this);
-		this.consoleOutputStream = new ConsoleOutputStream(this);
+		this(SwingTerminalConstants.DEFAULT_ROWS, SwingTerminalConstants.DEFAULT_COLUMNS, SwingTerminalConstants.MAX_DEFAULT_ROWS);
 	}
-
+	
 	/**
+	 * Construct the console
 	 * 
 	 * @param rows
 	 * @param columns
+	 * @param scrollback
 	 */
-	public UIConsole(int rows, int columns) {
-		this.terminal = new SwingTerminal(columns, rows);
+	public UIConsole(int rows, int columns, int scrollback) {
+		// set system look and feel
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (InstantiationException e1) {
+			e1.printStackTrace();
+		} catch (IllegalAccessException e1) {
+			e1.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e1) {
+			e1.printStackTrace();
+		}
+				
+		this.terminal = new UITerminal(columns, rows, scrollback);
+		this.keyboardHandler = new KeyboardHandler(this.terminal);
+		
+		this.frame = new JFrame();
+
+		// TODO: we may need to change this depending on how
+		// we run the shutdown hooks
+		this.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		
+		this.scrollPane = new JScrollPane(this.terminal);
+		this.frame.getContentPane().add(scrollPane);
+		
+		// set up streams to work with
 		this.consoleWriter = new ConsoleWriter(this);
 		this.consoleInputStream = new ConsoleInputStream(this);
 		this.consoleOutputStream = new ConsoleOutputStream(this);
+		
+		// show frame now
+		showFrame();
 	}
-
+	
 	/**
-	 * Clear the screen
-	 */
-	@Override
-	public void clearScreen() {
-		this.terminal.clearTerminal();
-	}
-
-	/**
+	 * Function that actually shows the frame after all
+	 * components have been set up.
 	 * 
 	 */
+	private void showFrame() {
+		SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                frame.pack(); // force peer to be created so that insets are known
+                frame.setSize(frame.getPreferredSize());
+                frame.setVisible(true);
+                
+                // workaround for 1.3.1: requestFocus not working unless run in another invokeLater
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        terminal.requestFocus();
+                    }
+                });
+            }
+        });
+	}
+
 	@Override
-	public void print(String string) {
-		this.terminal.writeString(string);
+	public void clearScreen() {
+		this.terminal.clearScreen();
+	}
+
+	@Override
+	public void print(char ch) {
+		this.terminal.output(ch);
 	}
 
 	@Override
 	public void print(char[] cbuf, int off, int len) {
-		this.terminal.write(cbuf, off, len);
+		this.terminal.output(cbuf, off, len);
 	}
 
-	/**
-	 * 
-	 */
+	@Override
+	public void print(String string) {
+		this.terminal.output(string);
+	}
+
 	@Override
 	public void println(String string) {
-		this.terminal.write(string);
-		this.terminal.write("\n");
-		this.terminal.refresh();
+		this.terminal.output(string);
+		this.terminal.output('\n');
 	}
-	
-	/**
-	 * 
-	 */
-	@Override
-	public void print(char ch) {
-		int ascii = (int) ch;
-		if(ascii == 10) {
-			this.terminal.write("\n");
-			return;
-		}
-		
-		this.terminal.writeChar(ch);
-	}
-	
-	/**
-	 * 
-	 */
+
 	@Override
 	public char readChar() {
-		InputKey key = this.terminal.getKey();
-		if(key != null) {
-			return key.ch;
-		}
-		
-		return (char) 0;
+		return this.keyboardHandler.readChar();
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public String readLine() {
-		return this.terminal.readString(true, (char) 0);
+		return this.keyboardHandler.readLine();
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public char[] readPassword() {
-		return this.terminal.readString(false, (char) 0).toCharArray();
+		return this.keyboardHandler.readPassword();
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public char[] readPassword(char mask) {
-		return this.terminal.readString(true, mask).toCharArray();
+		return this.keyboardHandler.readPassword(mask);
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public void setWindowTitle(String title) {
-		this.terminal.setTitle(title);
+		this.frame.setTitle(title);
 	}
 
 	/**
-	 * 
-	 */
-	@Override
-	protected void shutdownConsole() {
-		this.terminal.closeTerminal();
-	}
-
-	/**
-	 * 
+	 * @see AbstractConsole#getWriter()
 	 */
 	@Override
 	public Writer getWriter() {
@@ -196,7 +239,7 @@ public class UIConsole extends AbstractConsole {
 	}
 
 	/**
-	 * 
+	 * @see AbstractConsole#getInputStream()
 	 */
 	@Override
 	public InputStream getInputStream() {
@@ -204,7 +247,7 @@ public class UIConsole extends AbstractConsole {
 	}
 	
 	/**
-	 * 
+	 * @see AbstractConsole#getOutputStream()
 	 */
 	@Override
 	public OutputStream getOutputStream() {
@@ -212,34 +255,66 @@ public class UIConsole extends AbstractConsole {
 	}
 
 	/**
-	 * 
+	 * @see AbstractConsole#flush()
 	 */
+	@Override
 	public void flush() throws IOException {
 		this.consoleWriter.flush();
 	}
 
 	@Override
 	public void addShutdownHook(Runnable runnable) {
-		this.terminal.addShutdownHook(runnable);
-	}
-	
-	@Override
-	protected void finalize() throws Throwable {
-		this.shutdown();
+		if(this.shutDownHooks == null) {
+			synchronized (this) {
+				if(this.shutDownHooks == null) {
+					this.shutDownHooks = new ArrayList<Runnable>();
+				}
+			}
+		}
+		
+		this.shutDownHooks.add(runnable);
 	}
 
 	@Override
 	public void addKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler) {
-		this.terminal.addKeyTrap(inputKey, keyTrapHandler);
 	}
 
 	@Override
 	public boolean supportsResizing() {
 		return true;
 	}
-	
+
 	@Override
 	public void setResizingEnabled(boolean enabled) {
-//		this.terminal.setResizingEnabled(enabled);
+		// TODO Auto-generated method stub
 	}
+
+	@Override
+	protected void shutdownConsole() {
+		if(this.closingTerminal) {
+			// already closed
+			return;
+		}
+		
+		// start closing
+		this.keyboardHandler.shutDown();
+		this.closingTerminal = true;
+
+		// call shutdown hooks
+		if(this.shutDownHooks != null && !this.shutDownHooks.isEmpty()) {
+			for(Runnable hook : this.shutDownHooks) {
+				hook.run();
+			}
+			
+			this.shutDownHooks.clear();
+		}
+		
+		// clean up objects
+		// TODO: work this up
+//		this.terminal.dispose();
+		this.terminal.close();
+		this.frame.setVisible(false);
+		this.frame.dispose();
+	}
+
 }

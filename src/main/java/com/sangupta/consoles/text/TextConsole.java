@@ -19,7 +19,7 @@
  * 
  */
 
-package com.sangupta.consoles.pure;
+package com.sangupta.consoles.text;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +40,7 @@ import com.sangupta.consoles.core.WriterOutputStream;
  * @author sangupta
  *
  */
-public class PureConsole extends AbstractConsole {
+public class TextConsole extends AbstractConsole {
 
 	/**
 	 * The JLine based {@link ConsoleReader} instance unique to this console
@@ -55,7 +55,7 @@ public class PureConsole extends AbstractConsole {
 	/**
 	 * Constructor
 	 */
-	public PureConsole() {
+	public TextConsole() {
 		try {
 			this.consoleReader = new ConsoleReader();
 			

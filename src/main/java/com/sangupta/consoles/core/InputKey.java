@@ -29,27 +29,53 @@ package com.sangupta.consoles.core;
  */
 public class InputKey {
 	
+	/**
+	 * The character that was keyed in
+	 */
 	public char ch;
 	
+	/**
+	 * Whether the ALT key or OPTION key was pressed or not
+	 */
 	public boolean altPressed = false;
 	
+	/**
+	 * Whether the CONTROL key was pressed or not
+	 * 
+	 */
 	public boolean ctrlPressed = false;
 	
+	/**
+	 * Was this input a {@link SpecialInputKey}
+	 */
 	public SpecialInputKey specialKey = null;
 	
-	public InputKey() {
-		
-	}
-	
+	/**
+	 * Construct for simple character keyed in
+	 * 
+	 * @param ch
+	 */
 	public InputKey(char ch) {
 		this.ch = ch;
 	}
 	
+	/**
+	 * Construct for a special key input
+	 * 
+	 * @param key
+	 */
 	public InputKey(SpecialInputKey key) {
 		this.specialKey = key;
 		this.ch = (char) 0;
 	}
 
+	/**
+	 * Construct instance when CONTROL keys were pressed along with
+	 * 
+	 * @param ch
+	 * @param altPressed
+	 * @param ctrlPressed
+	 */
 	public InputKey(char ch, boolean altPressed, boolean ctrlPressed) {
 		this.ch = ch;
 		this.altPressed = altPressed;

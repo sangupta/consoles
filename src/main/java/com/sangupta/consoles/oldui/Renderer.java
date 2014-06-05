@@ -19,7 +19,7 @@
  * 
  */
 
-package com.sangupta.consoles.ui;
+package com.sangupta.consoles.oldui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -34,8 +34,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JComponent;
 import javax.swing.Timer;
-
-import com.sangupta.consoles.core.ScreenPosition;
 
 /**
  * The class helps render one screen full information of character-map (a 2D array)
@@ -101,7 +99,7 @@ public class Renderer extends JComponent {
 	 * by the parent {@link SwingTerminal} instance.
 	 * 
 	 */
-	private TerminalCharacter screenView[][];
+	private OldTerminalCharacter screenView[][];
 	
 	/**
 	 * Timer that is used to show/hide cursor to achieve cursor blinking
@@ -135,7 +133,7 @@ public class Renderer extends JComponent {
 	 * @param columns
 	 * @param rows
 	 */
-	public Renderer(int columns, int rows, TerminalCharacter screenView[][], ScreenPosition cursorPosition, AtomicInteger screenLocationRow) {
+	public Renderer(int columns, int rows, OldTerminalCharacter screenView[][], ScreenPosition cursorPosition, AtomicInteger screenLocationRow) {
 		this.numColumns = columns;
 		this.numRows = rows;
 		this.screenView = screenView;
@@ -178,7 +176,7 @@ public class Renderer extends JComponent {
 		graphics2D.fillRect(0, 0, this.dimension.width, this.dimension.height);
 		
 		// start rendering the characters
-		TerminalCharacter currentChar;
+		OldTerminalCharacter currentChar;
 		String charString;
 		
 		final int rowDelta;
@@ -293,7 +291,7 @@ public class Renderer extends JComponent {
 	 * @param newRows
 	 * @param newColumns
 	 */
-	public void resizeRenderer(TerminalCharacter[][] newScreenView, int newRows, int newColumns) {
+	public void resizeRenderer(OldTerminalCharacter[][] newScreenView, int newRows, int newColumns) {
 		this.numColumns = newColumns;
 		this.numRows = newRows;
 		this.screenView = newScreenView;

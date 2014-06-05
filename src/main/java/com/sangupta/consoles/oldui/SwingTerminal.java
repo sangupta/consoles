@@ -19,7 +19,7 @@
  * 
  */
 
-package com.sangupta.consoles.ui;
+package com.sangupta.consoles.oldui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -46,7 +46,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.KeyTrapHandler;
-import com.sangupta.consoles.core.ScreenPosition;
+import com.sangupta.consoles.swing.InputKeyListener;
+import com.sangupta.consoles.swing.SwingTerminalConstants;
 
 /**
  * Java Swing based terminal that uses {@link JFrame} to render the terminal.
@@ -75,13 +76,13 @@ public class SwingTerminal implements SwingTerminalConstants {
 	 * in the currently set foreground/background color.
 	 * 
 	 */
-	private final TerminalCharacter emptyCharacter;
+	private final OldTerminalCharacter emptyCharacter;
 	
 	/**
 	 * Holds one screen-view of information for this console.
 	 * 
 	 */
-	protected TerminalCharacter screenView[][];
+	protected OldTerminalCharacter screenView[][];
 	
 	/**
 	 * Holds the current location of visible area in the screen
@@ -225,9 +226,9 @@ public class SwingTerminal implements SwingTerminalConstants {
 		BorderLayout bl = new BorderLayout();
 		this.hostFrame.setLayout(bl);
 		
-		this.emptyCharacter = new TerminalCharacter((char) 0, FOREGROUND_COLOR, BACKGROUND_COLOR);
+		this.emptyCharacter = new OldTerminalCharacter((char) 0, DEFAULT_FOREGROUND_COLOR, BACKGROUND_COLOR);
 		
-		this.screenView = new TerminalCharacter[this.numBufferRows][this.numBufferColumns];
+		this.screenView = new OldTerminalCharacter[this.numBufferRows][this.numBufferColumns];
 
 		// initialize screen view and the buffer view
 		for(int row = 0; row < this.numScreenRows; row++) {
@@ -603,7 +604,7 @@ public class SwingTerminal implements SwingTerminalConstants {
 						// compute the number of tab stops that we need to add
 						int spaces = TAB_STOP - (col % TAB_STOP);
 						if(spaces == 1) {
-							this.screenView[row + this.screenLocationRow.get()][col++] = new TerminalCharacter(' ', FOREGROUND_COLOR, BACKGROUND_COLOR);
+							this.screenView[row + this.screenLocationRow.get()][col++] = new OldTerminalCharacter(' ', DEFAULT_FOREGROUND_COLOR, BACKGROUND_COLOR);
 						} else {
 							// TODO: optimize this to prevent recursive call
 							this.cursorPosition.setPosition(row, col);
@@ -619,7 +620,7 @@ public class SwingTerminal implements SwingTerminalConstants {
 						break;
 						
 					default:
-						this.screenView[row + this.screenLocationRow.get()][col++] = new TerminalCharacter(charToWrite, FOREGROUND_COLOR, BACKGROUND_COLOR);
+						this.screenView[row + this.screenLocationRow.get()][col++] = new OldTerminalCharacter(charToWrite, DEFAULT_FOREGROUND_COLOR, BACKGROUND_COLOR);
 				}
 				
 				// check for next line
@@ -663,7 +664,7 @@ public class SwingTerminal implements SwingTerminalConstants {
 			int col = this.cursorPosition.getColumn();
 			int row = this.cursorPosition.getRow();
 
-			this.screenView[row  + this.screenLocationRow.get()][col++] = new TerminalCharacter(ch, FOREGROUND_COLOR, BACKGROUND_COLOR);
+			this.screenView[row  + this.screenLocationRow.get()][col++] = new OldTerminalCharacter(ch, DEFAULT_FOREGROUND_COLOR, BACKGROUND_COLOR);
 
 			int[] vals = updateRowAndColumn(row, col);
 			row = vals[0];
@@ -701,7 +702,7 @@ public class SwingTerminal implements SwingTerminalConstants {
 			}
 
 			int row = this.numBufferRows - 1;
-			this.screenView[row] = new TerminalCharacter[this.numScreenColumns];
+			this.screenView[row] = new OldTerminalCharacter[this.numScreenColumns];
 			for(int index = 0; index < this.screenView[row].length; index++) {
 				this.screenView[row][index] = this.emptyCharacter.clone();
 			}
@@ -723,7 +724,7 @@ public class SwingTerminal implements SwingTerminalConstants {
 		}
 	}
 	
-	private void clearRow(TerminalCharacter[] row) {
+	private void clearRow(OldTerminalCharacter[] row) {
 		for(int index = 0; index < row.length; index++) {
 			row[index] = this.emptyCharacter.clone();
 		}
@@ -910,11 +911,11 @@ public class SwingTerminal implements SwingTerminalConstants {
 			// create a new screen view only if needed
 			boolean bufferChanged = false;
 			
-			TerminalCharacter newScreenView[][] = null;
+			OldTerminalCharacter newScreenView[][] = null;
 			int rows = Math.max(newRows, this.numBufferRows);
 			int cols = Math.max(newColumns, this.numBufferColumns);
 			if(rows > this.numBufferRows || cols > this.numBufferColumns) {
-				newScreenView = new TerminalCharacter[rows][cols];
+				newScreenView = new OldTerminalCharacter[rows][cols];
 				for(int row = 0; row < newRows; row++) {
 					clearRow(newScreenView[row]);
 				}

@@ -19,7 +19,7 @@
  * 
  */
 
-package com.sangupta.consoles.ui;
+package com.sangupta.consoles.oldui;
 
 import java.awt.Color;
 
@@ -29,7 +29,7 @@ import java.awt.Color;
  * @author sangupta
  *
  */
-public class TerminalCharacter implements Cloneable {
+public class OldTerminalCharacter implements Cloneable {
 	
 	/**
 	 * The character to be displayed on screen
@@ -56,29 +56,29 @@ public class TerminalCharacter implements Cloneable {
 	 * Default constructor
 	 * 
 	 */
-	public TerminalCharacter() {
+	public OldTerminalCharacter() {
 		
 	}
 	
 	/**
-	 * Convenience constructor to create a new {@link TerminalCharacter} and
+	 * Convenience constructor to create a new {@link OldTerminalCharacter} and
 	 * also assign it the properties.
 	 * 
 	 * @param character
 	 */
-	public TerminalCharacter(char character, Color foreground, Color background) {
+	public OldTerminalCharacter(char character, Color foreground, Color background) {
 		this.character = character;
 		this.foreground = foreground;
 		this.background = background;
 	}
 	
 	/**
-	 * Create a new {@link TerminalCharacter} with exactly the same properties as
+	 * Create a new {@link OldTerminalCharacter} with exactly the same properties as
 	 * this one.
 	 */
 	@Override
-	public TerminalCharacter clone() {
-		TerminalCharacter tc = new TerminalCharacter();
+	public OldTerminalCharacter clone() {
+		OldTerminalCharacter tc = new OldTerminalCharacter();
 		
 		tc.character = this.character;
 		tc.foreground = this.foreground;

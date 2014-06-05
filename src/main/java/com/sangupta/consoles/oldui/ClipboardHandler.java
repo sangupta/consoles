@@ -1,4 +1,4 @@
-package com.sangupta.consoles.ui;
+package com.sangupta.consoles.oldui;
 
 import java.awt.HeadlessException;
 import java.awt.Toolkit;

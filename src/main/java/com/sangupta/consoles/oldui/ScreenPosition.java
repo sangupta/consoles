@@ -19,7 +19,7 @@
  * 
  */
 
-package com.sangupta.consoles.core;
+package com.sangupta.consoles.oldui;
 
 /**
  * Defines the screen position of cursor.
