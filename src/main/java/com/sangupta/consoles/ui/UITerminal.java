@@ -97,7 +97,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
     private int baseline = 9;
 
     private char[][] chars;                // [rows][columns]
-    private TerminalCharacterAttributes[][] attributes; // [rows][columns]
+    private TerminalCharacterAttribute[][] attributes; // [rows][columns]
     
     private CursorType cursorType;
     private boolean cursorState;
@@ -248,15 +248,15 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 				chars[i] = newRow;
 			}
 
-			TerminalCharacterAttributes[][] oldAttributes = attributes;
+			TerminalCharacterAttribute[][] oldAttributes = attributes;
 			if (oldAttributes == null) {
-				oldAttributes = new TerminalCharacterAttributes[0][0];
+				oldAttributes = new TerminalCharacterAttribute[0][0];
 			}
 
-			attributes = new TerminalCharacterAttributes[rows][columns];
+			attributes = new TerminalCharacterAttribute[rows][columns];
 			System.arraycopy(oldAttributes, 0, attributes, 0, minRows);
 			for (int i = this.rows; i < rows; i++) {
-				TerminalCharacterAttributes[] newRow = new TerminalCharacterAttributes[columns];
+				TerminalCharacterAttribute[] newRow = new TerminalCharacterAttribute[columns];
 				Arrays.fill(newRow, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES);
 				attributes[i] = newRow;
 			}
@@ -285,20 +285,20 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 				chars[i] = newRow;
 			}
 
-			TerminalCharacterAttributes[][] oldAttributes = attributes;
+			TerminalCharacterAttribute[][] oldAttributes = attributes;
 			if (oldAttributes == null) {
-				oldAttributes = new TerminalCharacterAttributes[0][0];
+				oldAttributes = new TerminalCharacterAttribute[0][0];
 			}
 
-			attributes = new TerminalCharacterAttributes[rows][columns];
+			attributes = new TerminalCharacterAttribute[rows][columns];
 			for (int i = 0; i < minRows; i++) {
-				TerminalCharacterAttributes[] newRow = new TerminalCharacterAttributes[columns];
+				TerminalCharacterAttribute[] newRow = new TerminalCharacterAttribute[columns];
 				System.arraycopy(oldAttributes[i], 0, newRow, 0, minColumns);
 				attributes[i] = newRow;
 			}
 
 			for (int i = oldAttributes.length; i < rows; i++) {
-				attributes[i] = new TerminalCharacterAttributes[columns];
+				attributes[i] = new TerminalCharacterAttribute[columns];
 			}
 		}
 
@@ -559,7 +559,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		repaintChar(cursorX, cursorY);
 	}
 
-	private void outputRaw(char c, TerminalCharacterAttributes attr, boolean immediate) {
+	private void outputRaw(char c, TerminalCharacterAttribute attr, boolean immediate) {
 		// assert Thread.holdsLock(this);
 		if (attr == null) {
 			throw new NullPointerException("attributes may not be null");
@@ -615,7 +615,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		outputRaw(c, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES, false);
 	}
 
-	public synchronized void output(char c, TerminalCharacterAttributes attributes) {
+	public synchronized void output(char c, TerminalCharacterAttribute attributes) {
 		outputRaw(c, attributes, false);
 	}
 
@@ -623,7 +623,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		output(x, y, c, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES);
 	}
 
-	public synchronized void output(int x, int y, char c, TerminalCharacterAttributes attributes) {
+	public synchronized void output(int x, int y, char c, TerminalCharacterAttribute attributes) {
 		chars[y][x] = c;
 		this.attributes[y][x] = attributes;
 		repaintChar(x, y);
@@ -633,7 +633,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		output(c, offset, length, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES);
 	}
 
-	public synchronized void output(char[] c, int offset, int length, TerminalCharacterAttributes attributes) {
+	public synchronized void output(char[] c, int offset, int length, TerminalCharacterAttribute attributes) {
 		for (int i = offset; i < length; i++)
 			output(c[i], attributes);
 	}
@@ -642,7 +642,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		output(s, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES);
 	}
 
-	public synchronized void output(String s, TerminalCharacterAttributes attributes) {
+	public synchronized void output(String s, TerminalCharacterAttribute attributes) {
 		int length = s.length();
 		for (int i = 0; i < length; i++)
 			output(s.charAt(i), attributes);
@@ -652,7 +652,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		outputRaw(c, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES, true);
 	}
 
-	public synchronized void outputImmediately(char c, TerminalCharacterAttributes attributes) {
+	public synchronized void outputImmediately(char c, TerminalCharacterAttribute attributes) {
 		outputRaw(c, attributes, true);
 	}
 
@@ -665,11 +665,11 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		// magnitude faster in general usage.
 
 		char[] spareCharRow;
-		TerminalCharacterAttributes[] spareAttributeRow;
+		TerminalCharacterAttribute[] spareAttributeRow;
 
 		if (rows < scrollback) {
 			spareCharRow = new char[columns];
-			spareAttributeRow = new TerminalCharacterAttributes[columns];
+			spareAttributeRow = new TerminalCharacterAttribute[columns];
 			if (row == rows - 1)
 				row++;
 			setGridSize(columns, rows + 1, logicalColumns);
@@ -707,7 +707,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		}
 	}
 
-	protected void paintRun(Graphics g, int row, int start, int end, TerminalCharacterAttributes attributes) {
+	protected void paintRun(Graphics g, int row, int start, int end, TerminalCharacterAttribute attributes) {
 		if (attributes == null) {
 			attributes = SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES;
 		}
@@ -775,7 +775,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 
 		for (int i = startRow; i < endRow; i++) {
 			int start = startColumn;
-			TerminalCharacterAttributes currentAttributes = SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES;
+			TerminalCharacterAttribute currentAttributes = SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES;
 
 			for (int j = startColumn; j < endColumn; j++) {
 				if (currentAttributes != attributes[i][j]) {

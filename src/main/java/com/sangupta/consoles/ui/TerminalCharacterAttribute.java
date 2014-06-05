@@ -29,7 +29,7 @@ import java.awt.Color;
  *
  * @author sangupta
  */
-public class TerminalCharacterAttributes {
+public class TerminalCharacterAttribute {
 	
     private final Color foreground;
     
@@ -44,7 +44,7 @@ public class TerminalCharacterAttributes {
      *@param foreground the foreground color
      *@throws NullPointerException if <code>foreground</code> is <code>null</code>
      */
-    public TerminalCharacterAttributes(Color foreground) {
+    public TerminalCharacterAttribute(Color foreground) {
         this(foreground, Color.BLACK);
     }
         
@@ -57,7 +57,7 @@ public class TerminalCharacterAttributes {
      *@param background the background color
      *@throws NullPointerException if either <code>foreground</code> or <code>background</code> are <code>null</code>
      */
-    public TerminalCharacterAttributes(Color foreground, Color background) {
+    public TerminalCharacterAttribute(Color foreground, Color background) {
         if (foreground == null)
             throw new NullPointerException("foreground must be non-null");
         if (background == null)

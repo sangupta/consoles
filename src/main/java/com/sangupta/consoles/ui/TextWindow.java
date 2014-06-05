@@ -258,7 +258,7 @@ public interface TextWindow {
      *@param attributes the <code>TextAttributes</code> with which to render the character
      *@throws NullPointerException if <code>attributes</code> is <code>null</code>
      */
-    void output(char c, TerminalCharacterAttributes attributes);
+    void output(char c, TerminalCharacterAttribute attributes);
 
     
     /** 
@@ -283,7 +283,7 @@ public interface TextWindow {
      *@param attributes the <code>TextAttributes</code> with which to render the character
      *@throws NullPointerException if <code>attributes</code> is <code>null</code>
      */
-    void output(int x, int y, char c, TerminalCharacterAttributes attributes);
+    void output(int x, int y, char c, TerminalCharacterAttribute attributes);
 
     
     /** 
@@ -311,7 +311,7 @@ public interface TextWindow {
      *@throws IndexOutOfBoundsException if offset is negative or offset + count is greater than the size of the array
      *@throws NullPointerException if <code>attributes</code> is <code>null</code>
      */
-    void output(char[] c, int offset, int count, TerminalCharacterAttributes attributes);
+    void output(char[] c, int offset, int count, TerminalCharacterAttribute attributes);
 
     
     /** 
@@ -329,7 +329,7 @@ public interface TextWindow {
      *@param attributes the <code>TextAttributes</code> with which to render the characters
      *@throws NullPointerException if <code>attributes</code> is <code>null</code>
      */
-    void output(String s, TerminalCharacterAttributes attributes);
+    void output(String s, TerminalCharacterAttribute attributes);
     
     
     /** 
@@ -345,7 +345,7 @@ public interface TextWindow {
      *@param c the character to output
      *@param attributes the <code>TextAttributes</code> with which to render the character
      */
-    void outputImmediately(char c, TerminalCharacterAttributes attributes);
+    void outputImmediately(char c, TerminalCharacterAttribute attributes);
     
     
     /** 

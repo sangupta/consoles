@@ -195,4 +195,5 @@ public interface IConsole extends Flushable {
 	 * Enable/Disable resizing of the console, if it supports so
 	 */
 	public void setResizingEnabled(boolean enabled);
+	
 }
