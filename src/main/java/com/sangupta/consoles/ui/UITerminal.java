@@ -922,6 +922,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		// TODO: optimize this
 		for (int i = 0; i < this.chars.length; i++) {
 			Arrays.fill(this.chars[i], ' ');
+			Arrays.fill(this.attributes[i], this.currentTextColor);
 		}
 
 		// move to top
