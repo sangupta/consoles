@@ -22,6 +22,7 @@
 package com.sangupta.consoles.ui;
 
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -315,6 +316,20 @@ public class UIConsole extends AbstractConsole {
 		this.terminal.close();
 		this.frame.setVisible(false);
 		this.frame.dispose();
+	}
+	
+	@Override
+	public Color getForegroundColor() {
+		return this.terminal.getTextColor().getForeground();
+	}
+	
+	public Color getBackgroundColor() {
+		return this.terminal.getTextColor().getBackground();
+	}
+	
+	@Override
+	public void setColor(Color foreground, Color background) {
+		this.terminal.setTextColor(foreground, background);
 	}
 
 }

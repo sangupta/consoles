@@ -1,5 +1,6 @@
 package com.sangupta.consoles.core;
 
+import java.awt.Color;
 import java.io.InputStream;
 import java.io.PrintStream;
 
@@ -99,4 +100,17 @@ public abstract class AbstractConsole implements IConsole {
 	
 	protected abstract void shutdownConsole();
 	
+	public Color getForegroundColor() {
+		return null;
+	}
+	
+	public Color getBackgroundColor() {
+		return null;
+	}
+	
+	@Override
+	public void setColor(Color foreground, Color background) {
+		throw new RuntimeException("not yet implemented");
+	}
+
 }

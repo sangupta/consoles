@@ -91,6 +91,8 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
      * Number of columns actually being displayed. 
      */
     private volatile int logicalColumns;
+    
+    private TerminalCharacterAttribute currentTextColor = SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES;
 
     private volatile int charWidth = 16;
     private int charHeight = 16;
@@ -257,7 +259,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 			System.arraycopy(oldAttributes, 0, attributes, 0, minRows);
 			for (int i = this.rows; i < rows; i++) {
 				TerminalCharacterAttribute[] newRow = new TerminalCharacterAttribute[columns];
-				Arrays.fill(newRow, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES);
+				Arrays.fill(newRow, this.currentTextColor);
 				attributes[i] = newRow;
 			}
 		} else { // changing number of columns, use slower algorithm
@@ -612,7 +614,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	}
 
 	public synchronized void output(char c) {
-		outputRaw(c, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES, false);
+		outputRaw(c, this.currentTextColor, false);
 	}
 
 	public synchronized void output(char c, TerminalCharacterAttribute attributes) {
@@ -620,7 +622,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	}
 
 	public synchronized void output(int x, int y, char c) {
-		output(x, y, c, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES);
+		output(x, y, c, this.currentTextColor);
 	}
 
 	public synchronized void output(int x, int y, char c, TerminalCharacterAttribute attributes) {
@@ -630,7 +632,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	}
 
 	public synchronized void output(char[] c, int offset, int length) {
-		output(c, offset, length, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES);
+		output(c, offset, length, this.currentTextColor);
 	}
 
 	public synchronized void output(char[] c, int offset, int length, TerminalCharacterAttribute attributes) {
@@ -639,7 +641,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	}
 
 	public synchronized void output(String s) {
-		output(s, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES);
+		output(s, this.currentTextColor);
 	}
 
 	public synchronized void output(String s, TerminalCharacterAttribute attributes) {
@@ -649,7 +651,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	}
 
 	public synchronized void outputImmediately(char c) {
-		outputRaw(c, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES, true);
+		outputRaw(c, this.currentTextColor, true);
 	}
 
 	public synchronized void outputImmediately(char c, TerminalCharacterAttribute attributes) {
@@ -690,7 +692,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		Arrays.fill(spareCharRow, ' ');
 		chars[row] = spareCharRow;
 
-		Arrays.fill(spareAttributeRow, SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES);
+		Arrays.fill(spareAttributeRow, this.currentTextColor);
 		attributes[row] = spareAttributeRow;
 
 		repaint();
@@ -709,13 +711,13 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 
 	protected void paintRun(Graphics g, int row, int start, int end, TerminalCharacterAttribute attributes) {
 		if (attributes == null) {
-			attributes = SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES;
+			attributes = this.currentTextColor;
 		}
 
 		int startX = start * charWidth;
 		int startY = row * charHeight;
 		Color background = attributes.getBackground();
-		if (!background.equals(SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES.getBackground())) {
+		if (!background.equals(this.currentTextColor.getBackground())) {
 			g.setColor(background);
 			g.fillRect(startX, startY, (end - start) * charWidth, charHeight);
 		}
@@ -765,7 +767,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 			clip = visibleRect;
 		}
 
-		graphics.setColor(SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES.getBackground());
+		graphics.setColor(this.currentTextColor.getBackground());
 		graphics.fillRect(clip.x, clip.y, clip.width, clip.height);
 
 		startRow = clip.y / charHeight;
@@ -775,7 +777,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 
 		for (int i = startRow; i < endRow; i++) {
 			int start = startColumn;
-			TerminalCharacterAttribute currentAttributes = SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES;
+			TerminalCharacterAttribute currentAttributes = this.currentTextColor;
 
 			for (int j = startColumn; j < endColumn; j++) {
 				if (currentAttributes != attributes[i][j]) {
@@ -833,7 +835,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 				int x = cursorX * getCharWidth();
 				int y = cursorY * getCharHeight();
 				graphics.setColor(getCursorColor());
-				graphics.setXORMode(SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES.getBackground());
+				graphics.setXORMode(this.currentTextColor.getBackground());
 				graphics.drawLine(x, y, x, y + getCharHeight() - 1);
 				break;
 
@@ -938,4 +940,19 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		this.repaintTimer.stop();
 		this.cursorTimer.stop();
 	}
+	
+	public TerminalCharacterAttribute getTextColor() {
+		return this.currentTextColor;
+	}
+
+	/**
+	 * Set the current text color.
+	 * 
+	 * @param foreground
+	 * @param background
+	 */
+	public void setTextColor(Color foreground, Color background) {
+		this.currentTextColor = new TerminalCharacterAttribute(foreground, background);
+	}
+	
 }

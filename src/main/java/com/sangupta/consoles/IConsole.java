@@ -21,6 +21,7 @@
 
 package com.sangupta.consoles;
 
+import java.awt.Color;
 import java.io.Flushable;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -195,5 +196,17 @@ public interface IConsole extends Flushable {
 	 * Enable/Disable resizing of the console, if it supports so
 	 */
 	public void setResizingEnabled(boolean enabled);
+	
+	public Color getForegroundColor();
+	
+	public Color getBackgroundColor();
+	
+	/**
+	 * Set the screen color
+	 * 
+	 * @param foreground
+	 * @param background
+	 */
+	public void setColor(Color foreground, Color background);
 	
 }
