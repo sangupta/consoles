@@ -19,19 +19,19 @@
  * 
  */
 
-package com.sangupta.consoles.text;
+package com.sangupta.consoles.ansi;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.Writer;
+
+import jline.console.ConsoleReader;
 
 import com.sangupta.consoles.core.AbstractConsole;
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.KeyTrapHandler;
+import com.sangupta.consoles.core.WriterOutputStream;
 
 /**
  * A normal console implementation that works in the shell of the operating
@@ -40,19 +40,39 @@ import com.sangupta.consoles.core.KeyTrapHandler;
  * @author sangupta
  *
  */
-public class TextConsole extends AbstractConsole {
-	
-	private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+public class AnsiConsole extends AbstractConsole {
 
+	/**
+	 * The JLine based {@link ConsoleReader} instance unique to this console
+	 */
+	protected ConsoleReader consoleReader;
+	
+	/**
+	 * The output stream for this console reader
+	 */
+	protected OutputStream myOutputStream;
+	
 	/**
 	 * Constructor
 	 */
-	public TextConsole() {
+	public AnsiConsole() {
+		try {
+			this.consoleReader = new ConsoleReader();
+			
+			this.myOutputStream = new WriterOutputStream(this.getWriter());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void clearScreen() {
-		// do nothing - not supported
+		try {
+			this.consoleReader.clearScreen();
+			this.consoleReader.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -60,13 +80,21 @@ public class TextConsole extends AbstractConsole {
 	 */
 	@Override
 	public void print(char ch) {
-		System.out.print(ch);
+		try {
+			this.consoleReader.print(Character.toString(ch));
+			this.consoleReader.flush();
+		} catch(IOException e) {
+			throw new RuntimeException("Unable to write string to the console instance", e);
+		}
 	}
 	
 	@Override
 	public void print(char[] cbuf, int off, int len) {
-		for(int index = off; index < off + len; index++) {
-			System.out.print(cbuf[index]);
+		try {
+			this.consoleReader.print(String.valueOf(cbuf, off, len));
+			this.consoleReader.flush();
+		} catch (IOException e) {
+			throw new RuntimeException("Unable to write string to the console instance", e);
 		}
 	}
 
@@ -75,7 +103,12 @@ public class TextConsole extends AbstractConsole {
 	 */
 	@Override
 	public void print(String string) {
-		System.out.print(string);
+		try {
+			this.consoleReader.print(string);
+			this.consoleReader.flush();
+		} catch(IOException e) {
+			throw new RuntimeException("Unable to write string to the console instance", e);
+		}
 	}
 
 	/**
@@ -83,7 +116,12 @@ public class TextConsole extends AbstractConsole {
 	 */
 	@Override
 	public void println(String string) {
-		System.out.println(string);
+		try {
+			this.consoleReader.println(string);
+			this.consoleReader.flush();
+		} catch(IOException e) {
+			throw new RuntimeException("Unable to write string to the console instance", e);
+		}
 	}
 	
 	/**
@@ -92,9 +130,9 @@ public class TextConsole extends AbstractConsole {
 	@Override
 	public char readChar() {
 		try {
-			return (char) System.in.read();
+			return (char) this.consoleReader.readCharacter();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Unable to write string to the console instance", e);
 		}
 	}
 
@@ -104,20 +142,38 @@ public class TextConsole extends AbstractConsole {
 	@Override
 	public String readLine() {
 		try {
-			return reader.readLine();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+			return this.consoleReader.readLine();
+		} catch(IOException e) {
+			throw new RuntimeException("Unable to write string to the console instance", e);
 		}
 	}
 
 	@Override
 	public char[] readPassword() {
-		return readLine().toCharArray();
+		try {
+			String line = this.consoleReader.readLine((char) 0);
+			if(line != null) {
+				return line.toCharArray();
+			}
+			
+			return null;
+		} catch(IOException e) {
+			throw new RuntimeException("Unable to write string to the console instance", e);
+		}
 	}
 
 	@Override
 	public char[] readPassword(final char mask) {
-		return readPassword();
+		try {
+			String line = this.consoleReader.readLine(mask);
+			if(line != null) {
+				return line.toCharArray();
+			}
+			
+			return null;
+		} catch(IOException e) {
+			throw new RuntimeException("Unable to write string to the console instance", e);
+		}
 	}
 
 	@Override
@@ -128,27 +184,28 @@ public class TextConsole extends AbstractConsole {
 
 	@Override
 	protected void shutdownConsole() {
-		// do nothing
+		this.consoleReader.shutdown();
 	}
 
 	@Override
 	public Writer getWriter() {
-		return new PrintWriter(System.out);
+		return this.consoleReader.getOutput();
 	}
 
 	@Override
 	public InputStream getInputStream() {
-		return System.in;
+		return this.consoleReader.getInput();
 	}
 
 	@Override
 	public OutputStream getOutputStream() {
-		return System.out;
+		// return this.myOutputStream;
+		return null;
 	}
 
 	@Override
 	public void flush() throws IOException {
-		// do nothing
+		this.consoleReader.flush();
 	}
 
 	@Override
