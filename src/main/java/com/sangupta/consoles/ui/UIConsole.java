@@ -117,6 +117,15 @@ public class UIConsole extends AbstractConsole {
 	}
 	
 	/**
+	 * Default console to be constructed with given number
+	 * of rows and columns.
+	 * 
+	 */
+	public UIConsole(int rows, int columns) {
+		this(rows, columns, SwingTerminalConstants.MAX_DEFAULT_ROWS);
+	}
+	
+	/**
 	 * Construct the console
 	 * 
 	 * @param rows

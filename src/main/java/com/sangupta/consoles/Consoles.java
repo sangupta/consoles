@@ -45,8 +45,25 @@ public class Consoles {
 		return getConsole(null);
 	}
 	
+	/**
+	 * Create the given type of console.
+	 * 
+	 * @param type
+	 * @return
+	 */
 	public static IConsole getConsole(ConsoleType type) {
 		return getConsole(type, 0, 0);
+	}
+	
+	/**
+	 * Create the best-effort console for given rows and columms.
+	 * 
+	 * @param rows
+	 * @param columns
+	 * @return
+	 */
+	public static IConsole getConsole(int rows, int columns) {
+		return getConsole(null, 0, 0);
 	}
 	
 	/**
@@ -65,7 +82,7 @@ public class Consoles {
 				return new TextConsole();
 			
 			case UI:
-				return new UIConsole();
+				return new UIConsole(rows, columns);
 
 			case Tabbed:
 				return new GUIConsole(rows, columns);
