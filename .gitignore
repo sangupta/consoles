@@ -28,6 +28,7 @@ report/*
 bin-test/*
 docs/*
 .flexLibProperties
+dependency-reduced-pom.xml
 
 # Maven noise
 target/*
