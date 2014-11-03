@@ -73,12 +73,12 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
     private final int scrollback;
     
     /** 
-     * Number of rows currently being remembered. 
+     * Number of rows currently being remembered - or the total number of rows 
      */
     private volatile int rows;
     
     /** 
-     * Number of rows being displayed at one time. 
+     * Number of rows being displayed at one time - the view size
      */
     private volatile int logicalRows;
     
@@ -107,7 +107,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
     private int cursorX = -1;
     private int cursorY = -1;
 
-    private boolean valid;
+    private volatile boolean valid;
     
     /**
      * Indicates if we need to go to the bottom of
@@ -195,7 +195,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	 * </p>
 	 */
 	public UITerminal(int columns, int rows, int scrollback) {
-		setFont(new Font("Monospaced", 0, 12));
+		setFont(new Font("Lucida Console", 0, 14));
 		setGridSize(columns, rows, columns);
 		this.scrollback = scrollback;
 		this.logicalRows = rows;
@@ -319,18 +319,18 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		return logicalColumns;
 	}
 
-	public synchronized Dimension getMinimumSize() {
+	public Dimension getMinimumSize() {
 		int parentHeight = getParent().getHeight();
 		Insets parentInsets = getParent().getInsets();
 		parentHeight -= parentInsets.top + parentInsets.bottom;
 		return new Dimension(logicalColumns * getCharWidth(), Math.max(parentHeight, rows * getCharHeight()));
 	}
 
-	public synchronized Dimension getPreferredSize() {
+	public Dimension getPreferredSize() {
 		return getMinimumSize();
 	}
 
-	public synchronized Dimension getMaximumSize() {
+	public Dimension getMaximumSize() {
 		return getPreferredSize();
 	}
 
@@ -341,9 +341,16 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	public synchronized int getCursorY() {
 		return cursorY + logicalRows - rows;
 	}
+	
+	public synchronized void setCursorPosition(int x, int y) {
+		this.setCursorPosition(x, y, true);
+	}
 
-	public synchronized void setCursorPosition(int cursorX, int cursorY) {
-		cursorY += rows - logicalRows;
+	public synchronized void setCursorPosition(int cursorX, int cursorY, boolean massageY) {
+		if(massageY) {
+			cursorY += rows - logicalRows;
+		}
+		
 		repaintChar(this.cursorX, this.cursorY);
 		this.cursorX = cursorX;
 		this.cursorY = cursorY;
@@ -395,7 +402,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		listenerList.remove(KeyListener.class, l);
 	}
 
-	protected void processKeyEvent(KeyEvent e) {
+	protected synchronized void processKeyEvent(KeyEvent e) {
 		fireKeyEvent(e);
 		if (e.getID() == KeyEvent.KEY_TYPED) {
 			scrollRectToVisible(new Rectangle(0, cursorY * getCharHeight(), 1, (cursorY + 1) * getCharHeight() - 1));
@@ -858,7 +865,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		}
 
 		if (cursorX == -1 || cursorY == -1) {
-			setCursorPosition(0, 0);
+			setCursorPosition(0, 0, false);
 			scrollRectToVisible(new Rectangle(0, cursorY * getCharHeight(), columns * getCharWidth(), logicalRows * getCharHeight()));
 		}
 	}
@@ -926,7 +933,8 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		}
 
 		// move to top
-		this.setCursorPosition(0, 0 - rows + logicalRows);
+//		this.logicalRows = 0;
+		this.setCursorPosition(0, 0, false);
 		this.snapToTop = true;
 
 		// repaint to clear everything
