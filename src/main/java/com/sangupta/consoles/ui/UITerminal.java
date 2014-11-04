@@ -49,6 +49,7 @@ import javax.swing.Timer;
 
 import com.sangupta.consoles.swing.CursorType;
 import com.sangupta.consoles.swing.SwingTerminalConstants;
+import com.sangupta.consoles.util.FontUtils;
 
 /**
  * 
@@ -195,7 +196,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	 * </p>
 	 */
 	public UITerminal(int columns, int rows, int scrollback) {
-		setFont(new Font("Menlo", 0, 14));
+		setFont(FontUtils.getPlatformFont());
 		setGridSize(columns, rows, columns);
 		this.scrollback = scrollback;
 		this.logicalRows = rows;
