@@ -196,9 +196,19 @@ public interface IConsole extends Flushable {
 	 * Enable/Disable resizing of the console, if it supports so
 	 */
 	public void setResizingEnabled(boolean enabled);
-	
+
+	/**
+	 * Get the current foreground color of the text.
+	 * 
+	 * @return
+	 */
 	public Color getForegroundColor();
 	
+	/**
+	 * Get the current background color of the text.
+	 * 
+	 * @return
+	 */
 	public Color getBackgroundColor();
 	
 	/**

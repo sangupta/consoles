@@ -232,12 +232,28 @@ public class KeyboardHandler {
 		}
 	}
 	
+	/**
+	 * Set the character relative to current cursor position to the given value.
+	 * 
+	 * @param delta
+	 *            the relative character position
+	 * 
+	 * @param c
+	 *            the char to which the character needs to be set
+	 * 
+	 */
 	private synchronized void setRelativeChar(int delta, char c) {
 		this.moveCursor(delta);
 		this.terminal.outputImmediately(c);
 		this.moveCursor(delta);
 	}
 
+	/**
+	 * Write the given character to the terminal immediately.
+	 * 
+	 * @param c
+	 *            the char to be written
+	 */
 	private void writeChar(char c) {
 		if(c == 0) {
 			return;
@@ -246,6 +262,15 @@ public class KeyboardHandler {
 		this.terminal.outputImmediately(c);
 	}
 	
+	/**
+	 * Move the cursor left or right by the given amount. Moving also takes care
+	 * of the row change if needed.
+	 * 
+	 * @param delta
+	 *            the amount by which the cursor needs to be moved, can be
+	 *            negative.
+	 * 
+	 */
     public void moveCursor(int delta) {
         int newCursorX = this.terminal.getCursorX() + delta;
         int newCursorY = this.terminal.getCursorY();

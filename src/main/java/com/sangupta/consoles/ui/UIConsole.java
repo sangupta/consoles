@@ -287,6 +287,7 @@ public class UIConsole extends AbstractConsole {
 
 	@Override
 	public void addKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler) {
+		
 	}
 
 	@Override

@@ -195,7 +195,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	 * </p>
 	 */
 	public UITerminal(int columns, int rows, int scrollback) {
-		setFont(new Font("Lucida Console", 0, 14));
+		setFont(new Font("Menlo", 0, 14));
 		setGridSize(columns, rows, columns);
 		this.scrollback = scrollback;
 		this.logicalRows = rows;
