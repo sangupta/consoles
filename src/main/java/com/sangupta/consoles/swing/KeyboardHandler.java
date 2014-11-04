@@ -2,6 +2,7 @@ package com.sangupta.consoles.swing;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.ui.UITerminal;
@@ -116,6 +117,7 @@ public class KeyboardHandler {
 	 */
 	public String readString(boolean echo, char mask) {
 		final StringBuilder builder = new StringBuilder();
+		final AtomicInteger position = new AtomicInteger(0);
 		
 		// show the cursor from start
 		this.terminal.setCursorType(CursorType.CURSOR_OVERSTRIKE);
@@ -139,7 +141,7 @@ public class KeyboardHandler {
 				break;
 			}
 			
-			processEnteredKey(echo, mask, builder, key);
+			processEnteredKey(echo, mask, builder, key, position);
 			
 			this.terminal.setCursorType(CursorType.CURSOR_OVERSTRIKE);
 		}
@@ -157,7 +159,7 @@ public class KeyboardHandler {
 	 * @param builder
 	 * @param key
 	 */
-	private void processEnteredKey(boolean echo, char mask, final StringBuilder builder, InputKey key) {
+	private void processEnteredKey(boolean echo, char mask, final StringBuilder builder, final InputKey key, final AtomicInteger position) {
 		// ESCAPE
 		if((int) key.ch == 27) {
 			int length = builder.length();
@@ -167,17 +169,19 @@ public class KeyboardHandler {
 			for(int index = 0; index < length; index++) {
 				this.setRelativeChar(-1, ' ');
 			}
+			
+			position.set(0);
 			return;
 		}
 		
 		// BACKSPACE
 		if(key.ch == 8) {
-			if(builder.length() > 0) {
-				builder.deleteCharAt(builder.length() - 1);
-			} else {
+			if(builder.length() == 0) {
 				return;
 			}
-			
+
+			builder.deleteCharAt(builder.length() - 1);
+			position.decrementAndGet();
 			this.setRelativeChar(-1, ' ');
 			return;
 		}
@@ -189,6 +193,7 @@ public class KeyboardHandler {
 				
 				case LeftArrow:
 					this.moveCursor(-1);
+					position.decrementAndGet();
 					return;
 				
 				case PageUp:
@@ -197,6 +202,13 @@ public class KeyboardHandler {
 					
 				case PageDown:
 					this.terminal.pageDown();
+					return;
+					
+				case RightArrow:
+					if(position.get() < builder.length()) {
+						this.moveCursor(1);
+						position.incrementAndGet();
+					}
 					return;
 
 				default:
@@ -207,6 +219,7 @@ public class KeyboardHandler {
 		
 		// all well
 		// add the character to string
+		position.incrementAndGet();
 		builder.append(key.ch);
 		
 		// display on screen as needed
