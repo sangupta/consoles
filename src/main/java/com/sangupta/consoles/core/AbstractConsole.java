@@ -3,10 +3,16 @@ package com.sangupta.consoles.core;
 import java.awt.Color;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.UUID;
 
 import com.sangupta.consoles.IConsole;
 
 public abstract class AbstractConsole implements IConsole {
+	
+	/**
+	 * Generate a unique console id for every instance
+	 */
+	private static final String CONSOLE_ID = UUID.randomUUID().toString(); 
 	
 	/**
 	 * Internal reference to the input stream - before Husk will replace it.
@@ -28,6 +34,11 @@ public abstract class AbstractConsole implements IConsole {
 	 * 
 	 */
 	private boolean backedUp;
+	
+	@Override
+	public final String getConsoleID() {
+		return CONSOLE_ID;
+	}
 
 	/**
 	 * Backup original streams into the current set.

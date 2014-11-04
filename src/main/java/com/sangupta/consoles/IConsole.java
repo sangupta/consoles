@@ -39,6 +39,13 @@ import com.sangupta.consoles.core.KeyTrapHandler;
  *
  */
 public interface IConsole extends Flushable {
+
+	/**
+	 * Return a unique identifier that is associated with this console.
+	 * 
+	 * @return
+	 */
+	public String getConsoleID();
 	
 	/**
 	 * Clear the entire screen.
@@ -218,5 +225,5 @@ public interface IConsole extends Flushable {
 	 * @param background
 	 */
 	public void setColor(Color foreground, Color background);
-	
+
 }
