@@ -149,6 +149,14 @@ public class KeyboardHandler {
 		return builder.toString();
 	}
 
+	/**
+	 * Process the entered key to be appended to a string input.
+	 * 
+	 * @param echo
+	 * @param mask
+	 * @param builder
+	 * @param key
+	 */
 	private void processEnteredKey(boolean echo, char mask, final StringBuilder builder, InputKey key) {
 		// ESCAPE
 		if((int) key.ch == 27) {
@@ -181,7 +189,15 @@ public class KeyboardHandler {
 				
 				case LeftArrow:
 					this.moveCursor(-1);
-				return;
+					return;
+				
+				case PageUp:
+					this.terminal.pageUp();
+					return;
+					
+				case PageDown:
+					this.terminal.pageDown();
+					return;
 
 				default:
 					// do nothing
