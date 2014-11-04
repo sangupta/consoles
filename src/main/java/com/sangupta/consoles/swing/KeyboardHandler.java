@@ -1,10 +1,15 @@
 package com.sangupta.consoles.swing;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sangupta.consoles.core.InputKey;
+import com.sangupta.consoles.core.KeyTrapHandler;
 import com.sangupta.consoles.ui.UITerminal;
 
 /**
@@ -33,11 +38,22 @@ public class KeyboardHandler {
 	protected final Queue<InputKey> inputKeys;
 	
 	/**
+	 * List of all key traps
+	 */
+	protected final ConcurrentMap<InputKey, List<KeyTrapHandler>> keyTraps;
+	
+	/**
+	 * Whether we have key traps or not
+	 */
+	protected volatile boolean hasKeyTraps = false;
+	
+	/**
 	 * Initialize objects
 	 * 
 	 */
 	public KeyboardHandler(UITerminal terminal) {
 		this.terminal = terminal;
+		this.keyTraps = new ConcurrentHashMap<InputKey, List<KeyTrapHandler>>();
 				
         // setup basic keyboard handling
 		// set up key listeners
@@ -46,6 +62,7 @@ public class KeyboardHandler {
 	}
 	
 	/**
+	 * Read a character from the keyboard waiting for user input.
 	 * 
 	 */
 	public char readChar() {
@@ -58,6 +75,7 @@ public class KeyboardHandler {
 	}
 
 	/**
+	 * Read a line from the keyboard waiting for user input.
 	 * 
 	 */
 	public String readLine() {
@@ -65,6 +83,7 @@ public class KeyboardHandler {
 	}
 
 	/**
+	 * Read password as character array from the user.
 	 * 
 	 */
 	public char[] readPassword() {
@@ -72,10 +91,49 @@ public class KeyboardHandler {
 	}
 
 	/**
+	 * Read the password as a character array.
 	 * 
+	 * @return the character array representing the password
 	 */
 	public char[] readPassword(char mask) {
 		return this.readString(true, mask).toCharArray();
+	}
+
+	/**
+	 * Add the keyboard handler trap for the given key.
+	 * 
+	 * @param inputKey
+	 *            the key for which the trap is to be placed
+	 * 
+	 * @param keyTrapHandler
+	 *            the handler that needs to be invoked
+	 */
+	public void addKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler) {
+		if(inputKey == null) {
+			throw new IllegalArgumentException("Input key to trap cannot be null");
+		}
+		
+		if(keyTrapHandler == null) {
+			throw new IllegalArgumentException("Keytrap handler cannot be null");
+		}
+
+		List<KeyTrapHandler> currentHandlers = keyTraps.get(inputKey);
+		if(currentHandlers == null) {
+			// let's add a new list
+			List<KeyTrapHandler> handlers = new ArrayList<KeyTrapHandler>();
+			handlers.add(keyTrapHandler);
+			
+			currentHandlers = keyTraps.putIfAbsent(inputKey, handlers);
+			if(currentHandlers == null) {
+				// this was the first handler to be added
+				this.hasKeyTraps = true;
+				return;
+			}
+		}
+		
+		// add the item to list
+		currentHandlers.add(keyTrapHandler);
+		this.hasKeyTraps = true;
 	}
 
 	public InputKey getKey(boolean echo) {
@@ -89,20 +147,21 @@ public class KeyboardHandler {
 		}
 		
 		// check if we have a key trap handler over this key
-//		if(key != null && this.hasKeyTraps && this.keyTrapHandlers != null) {
-//			boolean hasTrap = this.keyTrapHandlers.containsKey(key);
-//			if(hasTrap) {
-//				List<KeyTrapHandler> handlers = this.keyTrapHandlers.get(key);
-//		
-//				boolean bubbleEvent = true;
-//				for(KeyTrapHandler handler : handlers) {
-//					bubbleEvent = handler.handleKeyInvocation(key);
-//					if(!bubbleEvent) {
-//						continue;
-//					}
-//				}
-//			}
-//		}
+		if(key != null && this.hasKeyTraps) {
+			boolean hasTrap = this.keyTraps.containsKey(key);
+			if(hasTrap) {
+				List<KeyTrapHandler> handlers = this.keyTraps.get(key);
+		
+				boolean bubbleEvent = true;
+				for(KeyTrapHandler handler : handlers) {
+					bubbleEvent = handler.handleKeyInvocation(key);
+					if(!bubbleEvent) {
+						// TODO: we may need a relook here
+						return null;
+					}
+				}
+			}
+		}
 		
 		if(echo) {
 			this.terminal.outputImmediately(key.ch);
@@ -128,6 +187,11 @@ public class KeyboardHandler {
 
 			if(this.closingTerminal) {
 				break;
+			}
+			
+			// this may happen when one of the handlers cancelled the input
+			if(key == null) {
+				continue;
 			}
 			
 			this.terminal.setCursorType(CursorType.CURSOR_INVISIBLE);
@@ -290,7 +354,12 @@ public class KeyboardHandler {
         this.terminal.setCursorPosition(newCursorX, newCursorY);
     }
     
+    /**
+     * Shutdown this keyboard handler as the terminal is closing down.
+     * 
+     */
     public void shutDown() {
     	this.closingTerminal = true;
     }
+
 }
