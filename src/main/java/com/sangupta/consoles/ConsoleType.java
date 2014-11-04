@@ -69,4 +69,39 @@ public enum ConsoleType {
 	 */
 	BestEffort;
 
+	/**
+	 * Convert the given string to a {@link ConsoleType} instance.
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static ConsoleType fromString(String type) {
+		if(type == null || type.trim().length() == 0) {
+			throw new IllegalArgumentException("Console type cannot be null/empty");
+		}
+		
+		type = type.trim().toLowerCase();
+		if("text".equals(type)) { 
+			return Text; 
+		}
+		
+		if("ansi".equals(type)) { 
+			return Ansi; 
+		}
+		
+		if("ui".equals(type)) { 
+			return UI; 
+		}
+		
+		if("tabbed".equals(type)) { 
+			return Tabbed; 
+		}
+		
+		if("remote".equals(type)) { 
+			return Remote; 
+		}
+		
+		return BestEffort;
+	}
+	
 }

@@ -23,6 +23,7 @@ package com.sangupta.consoles;
 
 import java.awt.GraphicsEnvironment;
 
+import com.sangupta.consoles.ansi.AnsiConsole;
 import com.sangupta.consoles.gui.GUIConsole;
 import com.sangupta.consoles.text.TextConsole;
 import com.sangupta.consoles.ui.UIConsole;
@@ -88,6 +89,11 @@ public class Consoles {
 				return new GUIConsole(rows, columns);
 
 			case BestEffort:
+				if(isRunningJavaW()) {
+					return new UIConsole(rows, columns);
+				}
+				return new AnsiConsole();
+				
 			default:
 				break;
 		}
@@ -100,4 +106,7 @@ public class Consoles {
 		return new GUIConsole(rows, columns); 
 	}
 
+	private static boolean isRunningJavaW() {
+		return System.console() == null;
+	}
 }
