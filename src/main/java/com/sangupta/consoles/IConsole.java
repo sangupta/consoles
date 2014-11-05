@@ -201,6 +201,10 @@ public interface IConsole extends Flushable {
 	
 	/**
 	 * Enable/Disable resizing of the console, if it supports so
+	 * 
+	 * @param enabled
+	 *            <code>true</code> if resizing should be enabled,
+	 *            <code>false</code> otherwise
 	 */
 	public void setResizingEnabled(boolean enabled);
 
@@ -226,4 +230,33 @@ public interface IConsole extends Flushable {
 	 */
 	public void setColor(Color foreground, Color background);
 
+	/**
+	 * Retrieve a console specific property. This can be used to pass on
+	 * messages between various unrelated independent code pieces.
+	 * 
+	 * @param name
+	 *            the property name
+	 * 
+	 * @return the value of the property if found, <code>null</code> otherwise
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if name is empty/<code>null</code>
+	 */
+	public String getConsoleProperty(String name);
+	
+	/**
+	 * Set a console specific property. This can be used to pass on messages
+	 * between various unrelated independent code pieces.
+	 * 
+	 * @param name
+	 *            the property name
+	 * 
+	 * @param value
+	 *            the property value
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if name is empty/<code>null</code>
+	 */
+	public void setConsoleProperty(String name, String value);
+	
 }

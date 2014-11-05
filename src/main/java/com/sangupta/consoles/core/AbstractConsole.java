@@ -3,10 +3,22 @@ package com.sangupta.consoles.core;
 import java.awt.Color;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import com.sangupta.consoles.IConsole;
+import com.sangupta.jerry.util.AssertUtils;
 
+/**
+ * An abstract implementation of {@link IConsole} from which definite
+ * console implementations can derive to provide specific functionality.
+ * Includes generic common functionality like providing a unique console
+ * id, working with console streams, console properties etc.
+ * 
+ * @author sangupta
+ *
+ */
 public abstract class AbstractConsole implements IConsole {
 	
 	/**
@@ -28,6 +40,11 @@ public abstract class AbstractConsole implements IConsole {
 	 * Internal reference to the error stream - before Husk will replace it.
 	 */
 	protected PrintStream originalErrorStream;
+	
+	/**
+	 * Stores console specific properties
+	 */
+	protected final Map<String, String> consoleProperties = new HashMap<String, String>();
 	
 	/**
 	 * Specifies if the original streams have been backed up or not.
@@ -124,4 +141,45 @@ public abstract class AbstractConsole implements IConsole {
 		throw new RuntimeException("not yet implemented");
 	}
 
+	/**
+	 * Retrieve a console specific property. This can be used to pass on
+	 * messages between various unrelated independent code pieces.
+	 * 
+	 * @param name
+	 *            the property name
+	 * 
+	 * @return the value of the property if found, <code>null</code> otherwise
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if name is empty/<code>null</code>
+	 */
+	public String getConsoleProperty(String name) {
+		if(AssertUtils.isEmpty(name)) {
+			throw new IllegalArgumentException("Property name cannot be null/empty");
+		}
+		
+		return this.consoleProperties.get(name);
+	}
+	
+	/**
+	 * Set a console specific property. This can be used to pass on messages
+	 * between various unrelated independent code pieces.
+	 * 
+	 * @param name
+	 *            the property name
+	 * 
+	 * @param value
+	 *            the property value
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if name is empty/<code>null</code>
+	 */
+	public void setConsoleProperty(String name, String value) {
+		if(AssertUtils.isEmpty(name)) {
+			throw new IllegalArgumentException("Property name cannot be null/empty");
+		}
+		
+		this.consoleProperties.put(name, value);
+	}
+	
 }

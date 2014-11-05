@@ -106,6 +106,14 @@ public class Consoles {
 		return new GUIConsole(rows, columns); 
 	}
 
+	/**
+	 * Check if we are running using Java VM or a JavaW VM - this specifies if
+	 * we want to launch a UI based console, or a simple plain text/ansi
+	 * console.
+	 * 
+	 * @return <code>true</code> if running inside JAVAW, <code>false</code>
+	 *         otherwise
+	 */
 	private static boolean isRunningJavaW() {
 		return System.console() == null;
 	}
