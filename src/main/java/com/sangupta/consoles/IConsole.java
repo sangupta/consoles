@@ -156,12 +156,22 @@ public interface IConsole extends Flushable {
 	public void addShutdownHook(Runnable runnable);
 
 	/**
+	 * Add a normal key trap handler - this handler gets executed when the execution returns
+	 * back to console - like at the end of a large string print execution.
 	 * 
 	 * @param inputKey
 	 * @param keyTrapHandler
 	 */
 	public void addKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler);
 
+	/**
+	 * Add a priority key handler - for functions like Ctrl+C etc
+	 * 
+	 * @param inputKey
+	 * @param keyTrapHandler
+	 */
+	public void addPriorityKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler);
+	
 	/**
 	 * Switch the original streams with the ones provided by the console.
 	 * 
@@ -258,5 +268,5 @@ public interface IConsole extends Flushable {
 	 *             if name is empty/<code>null</code>
 	 */
 	public void setConsoleProperty(String name, String value);
-	
+
 }

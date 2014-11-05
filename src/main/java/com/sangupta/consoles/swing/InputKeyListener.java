@@ -24,9 +24,14 @@ package com.sangupta.consoles.swing;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.sangupta.consoles.core.InputKey;
+import com.sangupta.consoles.core.KeyTrapHandler;
 import com.sangupta.consoles.core.SpecialInputKey;
 
 /**
@@ -47,11 +52,60 @@ public class InputKeyListener implements KeyListener {
 	private final Queue<InputKey> inputKeys;
 	
 	/**
+	 * List of all key traps
+	 */
+	private final ConcurrentMap<InputKey, List<KeyTrapHandler>> keyTraps;
+	
+	/**
+	 * Indicates if we have key traps installed
+	 * 
+	 */
+	private volatile boolean hasKeyTraps = false;
+	
+	/**
 	 * Create an instance of this listener
 	 * @param inputKeys
 	 */
 	public InputKeyListener(Queue<InputKey> inputKeys) {
 		this.inputKeys = inputKeys;
+		this.keyTraps = new ConcurrentHashMap<InputKey, List<KeyTrapHandler>>();
+	}
+	
+	/**
+	 * Add the keyboard handler trap for the given key.
+	 * 
+	 * @param inputKey
+	 *            the key for which the trap is to be placed
+	 * 
+	 * @param keyTrapHandler
+	 *            the handler that needs to be invoked
+	 */
+	public void addKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler) {
+		if(inputKey == null) {
+			throw new IllegalArgumentException("Input key to trap cannot be null");
+		}
+		
+		if(keyTrapHandler == null) {
+			throw new IllegalArgumentException("Keytrap handler cannot be null");
+		}
+
+		List<KeyTrapHandler> currentHandlers = keyTraps.get(inputKey);
+		if(currentHandlers == null) {
+			// let's add a new list
+			List<KeyTrapHandler> handlers = new ArrayList<KeyTrapHandler>();
+			handlers.add(keyTrapHandler);
+			
+			currentHandlers = keyTraps.putIfAbsent(inputKey, handlers);
+			if(currentHandlers == null) {
+				// this was the first handler to be added
+				this.hasKeyTraps = true;
+				return;
+			}
+		}
+		
+		// add the item to list
+		currentHandlers.add(keyTrapHandler);
+		this.hasKeyTraps = true;
 	}
 
 	/**
@@ -64,15 +118,33 @@ public class InputKeyListener implements KeyListener {
 		boolean altKeyPressed = (e.getModifiersEx() & InputEvent.ALT_DOWN_MASK) != 0;
 		boolean ctrlKeyPressed = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
 		
+		InputKey keyPressed;
 		if(ctrlKeyPressed) {
 			ch = (char)('a' - 1 + ch);
 			
-			this.inputKeys.add(new InputKey(ch, altKeyPressed, ctrlKeyPressed));
+			keyPressed = new InputKey(ch, altKeyPressed, ctrlKeyPressed);
 		} else {
-			this.inputKeys.add(new InputKey(e.getKeyChar()));
+			keyPressed = new InputKey(e.getKeyChar());
 		}
 		
-//		System.out.println((int) e.getKeyChar() + ":" + e.getKeyChar());
+		// we must check for key trap handlers
+		if(this.hasKeyTraps) {
+			boolean hasTrap = this.keyTraps.containsKey(keyPressed);
+			if(hasTrap) {
+				List<KeyTrapHandler> handlers = this.keyTraps.get(keyPressed);
+		
+				boolean bubbleEvent = true;
+				for(KeyTrapHandler handler : handlers) {
+					bubbleEvent = handler.handleKeyInvocation(keyPressed);
+					if(!bubbleEvent) {
+						return;
+					}
+				}
+			}
+		}		
+		
+		// all is fine - add up
+		this.inputKeys.add(keyPressed);
 	}
 
 	/**
@@ -174,8 +246,6 @@ public class InputKeyListener implements KeyListener {
 				break;
 
 		}
-		
-//		System.out.println((int) e.getKeyChar() + ":" + e.getKeyChar());
 	}
 
 	/**

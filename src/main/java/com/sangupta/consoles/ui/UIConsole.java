@@ -289,6 +289,11 @@ public class UIConsole extends AbstractConsole {
 	public void addKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler) {
 		this.keyboardHandler.addKeyTrap(inputKey, keyTrapHandler);
 	}
+	
+	@Override
+	public void addPriorityKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler) {
+		this.keyboardHandler.addPriorityKeyTrap(inputKey, keyTrapHandler);
+	}
 
 	@Override
 	public boolean supportsResizing() {

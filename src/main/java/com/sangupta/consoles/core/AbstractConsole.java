@@ -181,5 +181,14 @@ public abstract class AbstractConsole implements IConsole {
 		
 		this.consoleProperties.put(name, value);
 	}
-	
+
+	/**
+	 * This is the default behaviour - implementations must override this method
+	 * as well.
+	 * 
+	 */
+	@Override
+	public void addPriorityKeyTrap(InputKey inputKey,KeyTrapHandler keyTrapHandler) {
+		this.addKeyTrap(inputKey, keyTrapHandler);
+	}
 }

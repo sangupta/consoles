@@ -38,6 +38,12 @@ public class KeyboardHandler {
 	protected final Queue<InputKey> inputKeys;
 	
 	/**
+	 * The key listener being used along with this handler
+	 * 
+	 */
+	protected final InputKeyListener inputKeyListener;
+	
+	/**
 	 * List of all key traps
 	 */
 	protected final ConcurrentMap<InputKey, List<KeyTrapHandler>> keyTraps;
@@ -58,7 +64,8 @@ public class KeyboardHandler {
         // setup basic keyboard handling
 		// set up key listeners
 		this.inputKeys = new ConcurrentLinkedQueue<InputKey>();
-		this.terminal.addKeyListener(new InputKeyListener(this.inputKeys));
+		this.inputKeyListener = new InputKeyListener(this.inputKeys);
+		this.terminal.addKeyListener(this.inputKeyListener);
 	}
 	
 	/**
@@ -134,6 +141,16 @@ public class KeyboardHandler {
 		// add the item to list
 		currentHandlers.add(keyTrapHandler);
 		this.hasKeyTraps = true;
+	}
+
+	/**
+	 * Add the priority handler directly to the key listener.
+	 * 
+	 * @param inputKey
+	 * @param keyTrapHandler
+	 */
+	public void addPriorityKeyTrap(InputKey inputKey, KeyTrapHandler keyTrapHandler) {
+		this.inputKeyListener.addKeyTrap(inputKey, keyTrapHandler);
 	}
 
 	public InputKey getKey(boolean echo) {
