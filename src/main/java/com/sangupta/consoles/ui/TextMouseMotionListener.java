@@ -1,7 +1,7 @@
 /**
  *
  * consoles - Java based console terminals
- * Copyright (c) 2013, Sandeep Gupta
+ * Copyright (c) 2013-2015, Sandeep Gupta
  * 
  * http://www.sangupta/projects/consoles
  * 
@@ -46,4 +46,3 @@ public interface TextMouseMotionListener extends EventListener {
      */
     void mouseDragged(TextMouseEvent e);
 }
-
