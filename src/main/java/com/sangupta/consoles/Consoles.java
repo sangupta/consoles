@@ -36,10 +36,6 @@ import com.sangupta.consoles.ui.UIConsole;
  */
 public class Consoles {
 	
-	public static final int DEFAULT_CONSOLE_ROWS = 25;
-	
-	public static final int DEFAULT_CONSOLE_COLUMNS = 80;
-	
 	/**
 	 * Return a {@link IConsole} implementation based on the best-effort matching
 	 * strategy.
@@ -57,7 +53,7 @@ public class Consoles {
 	 * @return
 	 */
 	public static IConsole getConsole(ConsoleType type) {
-		return getConsole(type, DEFAULT_CONSOLE_ROWS, DEFAULT_CONSOLE_COLUMNS);
+		return getConsole(type, ConsolesConstants.DEFAULT_CONSOLE_ROWS, ConsolesConstants.DEFAULT_CONSOLE_COLUMNS);
 	}
 	
 	/**

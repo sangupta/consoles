@@ -29,6 +29,19 @@ package com.sangupta.consoles;
  */
 public interface ConsolesConstants {
 	
+	/**
+	 * The system new-line separator
+	 */
 	public static final String NEW_LINE = System.getProperty("line.separator");
 
+	/**
+	 * Default number of rows in a console if not specified
+	 */
+	public static final int DEFAULT_CONSOLE_ROWS = 25;
+	
+	/**
+	 * Default number of columns in a console if not specified
+	 */
+	public static final int DEFAULT_CONSOLE_COLUMNS = 80;
+	
 }
