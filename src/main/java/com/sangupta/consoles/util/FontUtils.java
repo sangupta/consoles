@@ -1,7 +1,7 @@
 /**
  *
  * consoles - Java based console terminals
- * Copyright (c) 2013-2015, Sandeep Gupta
+ * Copyright (c) 2013-2016, Sandeep Gupta
  * 
  * http://www.sangupta/projects/consoles
  * 
@@ -26,8 +26,13 @@ import java.awt.GraphicsEnvironment;
 
 public class FontUtils {
 	
-	private static final String[] fontsToLookFor = {  "Menlo" // OS X
-													, "Lucida Console" // Windows
+	private static final String[] fontsToLookFor = {
+//														"Monospaced"
+//		  											  , "Consolas"
+//													  , "Monaco"
+//													  , "Source Code Pro"
+													    "Menlo" // OS X
+													  , "Lucida Console" // Windows
 												   };
 
 	public static Font getPlatformFont() {

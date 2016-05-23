@@ -1,7 +1,7 @@
 /**
  *
  * consoles - Java based console terminals
- * Copyright (c) 2013-2015, Sandeep Gupta
+ * Copyright (c) 2013-2016, Sandeep Gupta
  * 
  * http://www.sangupta/projects/consoles
  * 

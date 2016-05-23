@@ -1,7 +1,7 @@
 /**
  *
  * consoles - Java based console terminals
- * Copyright (c) 2013-2015, Sandeep Gupta
+ * Copyright (c) 2013-2016, Sandeep Gupta
  * 
  * http://www.sangupta/projects/consoles
  * 
@@ -111,14 +111,12 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
     private volatile boolean valid;
     
     /**
-     * Indicates if we need to go to the bottom of
-     * the screen
+     * Indicates if we need to go to the bottom of the screen
      */
     private boolean snapToBottom;
     
     /**
-     * Indicates if we need to go to the top of the
-     * screen
+     * Indicates if we need to go to the top of the screen
      */
     private boolean snapToTop;
     
@@ -599,10 +597,8 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 
 					paintImmediately(cursorX * charWidth, cursorY * charHeight, charWidth, charHeight);
 				}
-			} catch (ArrayIndexOutOfBoundsException e) { // can happen if thread
-															// was terminated in
-															// the middle of
-															// output
+			} catch (ArrayIndexOutOfBoundsException e) { 
+				// can happen if thread was terminated in the middle of output
 				if (cursorX < 0) {
 					cursorX = 0;
 				} else if (cursorX >= logicalColumns) {
@@ -615,8 +611,8 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 					cursorY = rows - 1;
 				}
 
-				outputRaw(c, attr, false); // cursor should be in valid
-											// location, try again
+				// cursor should be in valid location, try again
+				outputRaw(c, attr, false);
 			}
 		}
 	}

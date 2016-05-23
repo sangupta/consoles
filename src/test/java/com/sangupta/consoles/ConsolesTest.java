@@ -1,7 +1,7 @@
 /**
  *
  * consoles - Java based console terminals
- * Copyright (c) 2013-2015, Sandeep Gupta
+ * Copyright (c) 2013-2016, Sandeep Gupta
  * 
  * http://www.sangupta/projects/consoles
  * 
@@ -21,6 +21,7 @@
 
 package com.sangupta.consoles;
 
+import com.sangupta.jerry.util.DateUtils;
 
 /**
  * Test class for Consoles.
@@ -49,6 +50,8 @@ public class ConsolesTest {
 				break;
 			}
 		} while(true);
+		
+//		Thread.sleep(DateUtils.FIFTEEN_MINUTES);
 		
 		console.shutdown();
 		
