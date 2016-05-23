@@ -459,7 +459,7 @@ public class SwingTerminal implements SwingTerminalConstants {
 				
 				switch(key.specialKey) {
 					
-					case LeftArrow:
+					case LEFT_ARROW:
 						this.setRelativeCursorPosition(0, -1);
 						continue;
 

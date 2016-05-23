@@ -31,18 +31,18 @@ package com.sangupta.consoles.core;
 public enum SpecialInputKey {
 	
 	// arrow keys
-	LeftArrow,
-	RightArrow,
-	UpArrow,
-	DownArrow,
+	LEFT_ARROW,
+	RIGHT_ARROW,
+	UP_ARROW,
+	DOWN_ARROW,
 	
 	// insert-block
-	Insert,
-	Delete,
-	Home,
-	End,
-	PageUp,
-	PageDown,
+	INSERT,
+	DELETE,
+	HOME,
+	END,
+	PAGE_UP,
+	PAGE_DOWN,
 	
 	// function keys
 	F1, F2, F3, F4,

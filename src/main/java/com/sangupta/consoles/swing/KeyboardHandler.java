@@ -293,20 +293,20 @@ public class KeyboardHandler {
 			
 			switch(key.specialKey) {
 				
-				case LeftArrow:
+				case LEFT_ARROW:
 					this.moveCursor(-1);
 					position.decrementAndGet();
 					return;
 				
-				case PageUp:
+				case PAGE_UP:
 					this.terminal.pageUp();
 					return;
 					
-				case PageDown:
+				case PAGE_DOWN:
 					this.terminal.pageDown();
 					return;
 					
-				case RightArrow:
+				case RIGHT_ARROW:
 					if(position.get() < builder.length()) {
 						this.moveCursor(1);
 						position.incrementAndGet();

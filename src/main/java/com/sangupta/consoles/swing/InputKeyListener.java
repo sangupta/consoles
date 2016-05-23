@@ -158,43 +158,43 @@ public class InputKeyListener implements KeyListener {
 		
 		switch(keyCode) {
 			case KeyEvent.VK_LEFT:
-				this.inputKeys.add(new InputKey(SpecialInputKey.LeftArrow));
+				this.inputKeys.add(new InputKey(SpecialInputKey.LEFT_ARROW));
 				break;
 				
 			case KeyEvent.VK_RIGHT:
-				this.inputKeys.add(new InputKey(SpecialInputKey.RightArrow));
+				this.inputKeys.add(new InputKey(SpecialInputKey.RIGHT_ARROW));
 				break;
 				
 			case KeyEvent.VK_UP:
-				this.inputKeys.add(new InputKey(SpecialInputKey.UpArrow));
+				this.inputKeys.add(new InputKey(SpecialInputKey.UP_ARROW));
 				break;
 				
 			case KeyEvent.VK_DOWN:
-				this.inputKeys.add(new InputKey(SpecialInputKey.DownArrow));
+				this.inputKeys.add(new InputKey(SpecialInputKey.DOWN_ARROW));
 				break;
 				
 			case KeyEvent.VK_INSERT:
-				this.inputKeys.add(new InputKey(SpecialInputKey.Insert));
+				this.inputKeys.add(new InputKey(SpecialInputKey.INSERT));
 				break;
 				
 			case KeyEvent.VK_DELETE:
-				this.inputKeys.add(new InputKey(SpecialInputKey.Delete));
+				this.inputKeys.add(new InputKey(SpecialInputKey.DELETE));
 				break;
 				
 			case KeyEvent.VK_HOME:
-				this.inputKeys.add(new InputKey(SpecialInputKey.Home));
+				this.inputKeys.add(new InputKey(SpecialInputKey.HOME));
 				break;
 				
 			case KeyEvent.VK_END:
-				this.inputKeys.add(new InputKey(SpecialInputKey.End));
+				this.inputKeys.add(new InputKey(SpecialInputKey.END));
 				break;
 				
 			case KeyEvent.VK_PAGE_UP:
-				this.inputKeys.add(new InputKey(SpecialInputKey.PageUp));
+				this.inputKeys.add(new InputKey(SpecialInputKey.PAGE_UP));
 				break;
 				
 			case KeyEvent.VK_PAGE_DOWN:
-				this.inputKeys.add(new InputKey(SpecialInputKey.PageDown));
+				this.inputKeys.add(new InputKey(SpecialInputKey.PAGE_DOWN));
 				break;
 				
 			case KeyEvent.VK_F1:
