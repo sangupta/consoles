@@ -75,20 +75,20 @@ public class Consoles {
 	 */
 	public static IConsole getConsole(ConsoleType type, int rows, int columns) {
 		if(type == null) {
-			type = ConsoleType.BestEffort;
+			type = ConsoleType.BEST_EFFORT;
 		}
 		
 		switch(type) {
-			case Text:
+			case TEXT:
 				return new TextConsole();
 			
 			case UI:
 				return new UIConsole(rows, columns);
 
-			case Tabbed:
+			case TABBED:
 				return new GUIConsole(rows, columns);
 
-			case BestEffort:
+			case BEST_EFFORT:
 				if(isRunningJavaW()) {
 					return new UIConsole(rows, columns);
 				}

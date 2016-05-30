@@ -34,13 +34,13 @@ public enum ConsoleType {
 	 * like Windows command line, or Bash etc.
 	 * 
 	 */
-	Text,
+	TEXT,
 	
 	/**
 	 * Text shell console which behaves almost as a {@link ConsoleType#Text} but
 	 * also allows for ANSI based sequences and coloring using Jline framework.
 	 */
-	Ansi,
+	ANSI,
 	
 	/**
 	 * A simple console just like the pure console but it runs inside a
@@ -54,20 +54,20 @@ public enum ConsoleType {
 	 * an Eclipse like-console environment filled with colors and multiple tabs.
 	 * 
 	 */
-	Tabbed,
+	TABBED,
 	
 	/**
 	 * An implementation that works as a remote console. A server runs that streams
 	 * all data to a console attached from a client.
 	 */
-	Remote,
+	REMOTE,
 	
 	/**
 	 * Show the console based on the current OS, architecture, memory etc.
 	 * It will try to load the {@link #GUI} console first, followed by
 	 * {@link #UI} console, and lastly the {@link #Pure} console.
 	 */
-	BestEffort;
+	BEST_EFFORT;
 
 	/**
 	 * Convert the given string to a {@link ConsoleType} instance.
@@ -82,11 +82,11 @@ public enum ConsoleType {
 		
 		type = type.trim().toLowerCase();
 		if("text".equals(type)) { 
-			return Text; 
+			return TEXT; 
 		}
 		
 		if("ansi".equals(type)) { 
-			return Ansi; 
+			return ANSI; 
 		}
 		
 		if("ui".equals(type)) { 
@@ -94,14 +94,14 @@ public enum ConsoleType {
 		}
 		
 		if("tabbed".equals(type)) { 
-			return Tabbed; 
+			return TABBED; 
 		}
 		
 		if("remote".equals(type)) { 
-			return Remote; 
+			return REMOTE; 
 		}
 		
-		return BestEffort;
+		return BEST_EFFORT;
 	}
 	
 }

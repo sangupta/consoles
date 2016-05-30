@@ -95,17 +95,47 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
     
     private TerminalCharacterAttribute currentTextColor = SwingTerminalConstants.DEFAULT_TERMINAL_CHAR_ATTRIBUTES;
 
+    /**
+     * The width of the character
+     */
     private volatile int charWidth = 16;
+    
+    /**
+     * The height of one character
+     */
     private int charHeight = 16;
+    
+    /**
+     * Defines the number of pixels in the font ascent
+     */
     private int baseline = 9;
 
     private char[][] chars;                // [rows][columns]
     private TerminalCharacterAttribute[][] attributes; // [rows][columns]
     
+    /**
+     * The current {@link CursorType} associated with this console
+     */
     private CursorType cursorType;
+    
+    /**
+     * Boolean value to switch alternatively to display a blinking cursor
+     */
     private boolean cursorState;
+    
+    /**
+     * The color attributes associated with the cursor of this console
+     */
     private Color cursorColor;
+    
+    /**
+     * The current X position of the cursor
+     */
     private int cursorX = -1;
+    
+    /**
+     * The current Y position of the cursor
+     */
     private int cursorY = -1;
 
     private volatile boolean valid;
@@ -123,10 +153,12 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
     private Rectangle dirtyRegion;
     
     private final Timer cursorTimer = new Timer(SwingTerminalConstants.CURSOR_BLINK_DELAY, new ActionListener() {
+    	
             public void actionPerformed(ActionEvent e) {
                 cursorState = !cursorState;
                 repaintChar(cursorX, cursorY);
             }
+            
         });
 
     private final Timer repaintTimer = new Timer(SwingTerminalConstants.REPAINT_DELAY, new ActionListener() {
@@ -194,12 +226,24 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	 * </p>
 	 */
 	public UITerminal(int columns, int rows, int scrollback) {
+		// set the current font
 		setFont(FontUtils.getPlatformFont());
+		
+		// set the current grid size
 		setGridSize(columns, rows, columns);
 		this.scrollback = scrollback;
 		this.logicalRows = rows;
+		
+		// the color of the cursor
 		setCursorColor(SwingTerminalConstants.DEFAULT_CURSOR_COLOR);
-		cursorTimer.start();
+		
+		// start timer to paint cursor
+		this.cursorTimer.start();
+		
+		// add a listener to select text area with mouse
+		this.addTextMouseListener(new MouseHighlightHandler(this));
+		
+		// enable mouse events
 		enableEvents(AWTEvent.MOUSE_EVENT_MASK);
 	}
     
@@ -227,7 +271,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	}
 
 	private synchronized void setGridSize(int columns, int rows, int logicalColumns) {
-		while (cursorY >= rows) {
+		while (this.cursorY >= rows) {
 			scrollByOneRow();
 		}
 
@@ -235,31 +279,37 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		if (columns == this.columns) { // not changing number of columns, use
 										// more efficient algorithm
 			int minRows = Math.min(rows, this.rows);
-			char[][] oldChars = chars;
+			char[][] oldChars = this.chars;
 			if (oldChars == null) {
 				oldChars = new char[0][0];
 			}
 
-			chars = new char[rows][columns];
+			this.chars = new char[rows][columns];
 			System.arraycopy(oldChars, 0, chars, 0, minRows);
 
 			for (int i = this.rows; i < rows; i++) {
 				char[] newRow = new char[columns];
 				Arrays.fill(newRow, ' ');
-				chars[i] = newRow;
+				this.chars[i] = newRow;
 			}
 
-			TerminalCharacterAttribute[][] oldAttributes = attributes;
+			TerminalCharacterAttribute[][] oldAttributes = this.attributes;
 			if (oldAttributes == null) {
 				oldAttributes = new TerminalCharacterAttribute[0][0];
 			}
 
-			attributes = new TerminalCharacterAttribute[rows][columns];
+			this.attributes = new TerminalCharacterAttribute[rows][columns];
 			System.arraycopy(oldAttributes, 0, attributes, 0, minRows);
+			
 			for (int i = this.rows; i < rows; i++) {
 				TerminalCharacterAttribute[] newRow = new TerminalCharacterAttribute[columns];
-				Arrays.fill(newRow, this.currentTextColor);
-				attributes[i] = newRow;
+				
+				for(int j = 0; j < newRow.length; j++) {
+//					Arrays.fill(newRow, this.currentTextColor);
+					newRow[j] = this.currentTextColor.clone();
+				}
+				
+				this.attributes[i] = newRow;
 			}
 		} else { // changing number of columns, use slower algorithm
 			int minRows = Math.min(rows, this.rows);
@@ -269,7 +319,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 				oldChars = new char[0][0];
 			}
 
-			chars = new char[rows][columns];
+			this.chars = new char[rows][columns];
 			for (int i = 0; i < minRows; i++) {
 				char[] newRow = new char[columns];
 				System.arraycopy(oldChars[i], 0, newRow, 0, minColumns);
@@ -277,29 +327,29 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 					Arrays.fill(newRow, minColumns, columns, ' ');
 				}
 
-				chars[i] = newRow;
+				this.chars[i] = newRow;
 			}
 
 			for (int i = oldChars.length; i < rows; i++) {
 				char[] newRow = new char[columns];
 				Arrays.fill(newRow, ' ');
-				chars[i] = newRow;
+				this.chars[i] = newRow;
 			}
 
-			TerminalCharacterAttribute[][] oldAttributes = attributes;
+			TerminalCharacterAttribute[][] oldAttributes = this.attributes;
 			if (oldAttributes == null) {
 				oldAttributes = new TerminalCharacterAttribute[0][0];
 			}
 
-			attributes = new TerminalCharacterAttribute[rows][columns];
+			this.attributes = new TerminalCharacterAttribute[rows][columns];
 			for (int i = 0; i < minRows; i++) {
 				TerminalCharacterAttribute[] newRow = new TerminalCharacterAttribute[columns];
 				System.arraycopy(oldAttributes[i], 0, newRow, 0, minColumns);
-				attributes[i] = newRow;
+				this.attributes[i] = newRow;
 			}
 
 			for (int i = oldAttributes.length; i < rows; i++) {
-				attributes[i] = new TerminalCharacterAttribute[columns];
+				this.attributes[i] = new TerminalCharacterAttribute[columns];
 			}
 		}
 
@@ -311,11 +361,11 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	}
 
 	public synchronized int getRows() {
-		return logicalRows;
+		return this.logicalRows;
 	}
 
 	public synchronized int getColumns() {
-		return logicalColumns;
+		return this.logicalColumns;
 	}
 
 	public Dimension getMinimumSize() {
@@ -334,11 +384,11 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	}
 
 	public synchronized int getCursorX() {
-		return cursorX;
+		return this.cursorX;
 	}
 
 	public synchronized int getCursorY() {
-		return cursorY + logicalRows - rows;
+		return this.cursorY + this.logicalRows - this.rows;
 	}
 	
 	public synchronized void setCursorPosition(int x, int y) {
@@ -347,27 +397,27 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 
 	public synchronized void setCursorPosition(int cursorX, int cursorY, boolean massageY) {
 		if(massageY) {
-			cursorY += rows - logicalRows;
+			cursorY += this.rows - this.logicalRows;
 		}
 		
 		repaintChar(this.cursorX, this.cursorY);
 		this.cursorX = cursorX;
 		this.cursorY = cursorY;
-		cursorState = true;
-		cursorTimer.restart();
+		this.cursorState = true;
+		this.cursorTimer.restart();
 		repaintChar(cursorX, cursorY);
 	}
 
 	public int getCharWidth() {
-		return charWidth;
+		return this.charWidth;
 	}
 
 	public int getCharHeight() {
-		return charHeight;
+		return this.charHeight;
 	}
 
 	public CursorType getCursorType() {
-		return cursorType;
+		return this.cursorType;
 	}
 
 	public void setCursorType(CursorType cursorType) {
@@ -375,16 +425,16 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	}
 
 	public void addTextWindowListener(TextWindowListener l) {
-		listenerList.add(TextWindowListener.class, l);
+		this.listenerList.add(TextWindowListener.class, l);
 	}
 
 	public void removeTextWindowListener(TextWindowListener l) {
-		listenerList.remove(TextWindowListener.class, l);
+		this.listenerList.remove(TextWindowListener.class, l);
 	}
 
 	protected void fireResized() {
 		TextWindowEvent e = new TextWindowEvent(this, TextWindowEvent.RESIZED);
-		Object[] listeners = listenerList.getListenerList();
+		Object[] listeners = this.listenerList.getListenerList();
 		for (int i = listeners.length - 2; i >= 0; i -= 2) {
 			if (listeners[i] == TextWindowListener.class) {
 				TextWindowListener listener = ((TextWindowListener) listeners[i + 1]);
@@ -394,11 +444,11 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	}
 
 	public void addKeyListener(KeyListener l) {
-		listenerList.add(KeyListener.class, l);
+		this.listenerList.add(KeyListener.class, l);
 	}
 
 	public void removeKeyListener(KeyListener l) {
-		listenerList.remove(KeyListener.class, l);
+		this.listenerList.remove(KeyListener.class, l);
 	}
 
 	protected synchronized void processKeyEvent(KeyEvent e) {
@@ -433,20 +483,20 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 	}
 
 	public void addTextMouseListener(TextMouseListener l) {
-		listenerList.add(TextMouseListener.class, l);
+		this.listenerList.add(TextMouseListener.class, l);
 	}
 
 	public void removeTextMouseListener(TextMouseListener l) {
-		listenerList.remove(TextMouseListener.class, l);
+		this.listenerList.remove(TextMouseListener.class, l);
 	}
 
 	public void addTextMouseMotionListener(TextMouseMotionListener l) {
 		enableEvents(AWTEvent.MOUSE_MOTION_EVENT_MASK);
-		listenerList.add(TextMouseMotionListener.class, l);
+		this.listenerList.add(TextMouseMotionListener.class, l);
 	}
 
 	public void removeTextMouseMotionListener(TextMouseMotionListener l) {
-		listenerList.remove(TextMouseMotionListener.class, l);
+		this.listenerList.remove(TextMouseMotionListener.class, l);
 	}
 
 	protected void processMouseEvent(MouseEvent e) {
@@ -462,12 +512,31 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		fireMouseMotionEvent(e);
 	}
 
+	/**
+	 * Create an instance of new {@link TextMouseEvent} based on the {@link MouseEvent} received.
+	 * 
+	 * @param event
+	 * @return
+	 */
 	private TextMouseEvent createTextMouseEvent(MouseEvent event) {
-		int bias = event.getX() % getCharWidth() < (getCharWidth() / 2) ? TextMouseEvent.BIAS_LEFT : TextMouseEvent.BIAS_RIGHT;
-		return new TextMouseEvent((Component) event.getSource(), event.getID(), event.getWhen(), event.getModifiers(), event.getX() / getCharWidth(),
-				event.getY() / getCharHeight() - rows + logicalRows, event.getClickCount(), event.isPopupTrigger(), bias);
+		int halfCharWidth = getCharWidth() >> 1; // divide by 2
+		int currentChar = event.getX() % getCharWidth();
+		
+		int bias;
+		if(currentChar < halfCharWidth) {
+			bias = TextMouseEvent.BIAS_LEFT;
+		} else {
+			bias = TextMouseEvent.BIAS_RIGHT;
+		}
+		
+		return new TextMouseEvent((Component) event.getSource(), event.getID(), event.getWhen(), event.getModifiers(), currentChar, event.getY() / getCharHeight() - rows + logicalRows, event.getClickCount(), event.isPopupTrigger(), bias);
 	}
 
+	/**
+	 * Fire the mouse event.
+	 * 
+	 * @param event
+	 */
 	private void fireMouseEvent(MouseEvent event) {
 		TextMouseEvent textMouseEvent = null;
 		Object[] listeners = listenerList.getListenerList();
@@ -478,16 +547,23 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 				}
 
 				TextMouseListener listener = ((TextMouseListener) listeners[i + 1]);
+				
 				switch (event.getID()) {
-				case MouseEvent.MOUSE_PRESSED:
-					listener.mousePressed(textMouseEvent);
-					break;
-				case MouseEvent.MOUSE_RELEASED:
-					listener.mouseReleased(textMouseEvent);
-					break;
-				case MouseEvent.MOUSE_CLICKED:
-					listener.mouseClicked(textMouseEvent);
-					break;
+					case MouseEvent.MOUSE_DRAGGED:
+						listener.mouseDragged(textMouseEvent);
+						break;
+						
+					case MouseEvent.MOUSE_PRESSED:
+						listener.mousePressed(textMouseEvent);
+						break;
+						
+					case MouseEvent.MOUSE_RELEASED:
+						listener.mouseReleased(textMouseEvent);
+						break;
+						
+					case MouseEvent.MOUSE_CLICKED:
+						listener.mouseClicked(textMouseEvent);
+						break;
 				}
 			}
 		}
@@ -550,20 +626,24 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		cursorState = true;
 		cursorTimer.restart();
 		switch (chr) {
-		case '\n':
-			cursorX = 0;
-			if (++cursorY >= rows)
-				scrollByOneRow();
-			break;
-		case '\r':
-			break;
-		default:
-			if (++cursorX >= logicalColumns) {
+			case '\n':
 				cursorX = 0;
 				if (++cursorY >= rows)
 					scrollByOneRow();
-			}
+				break;
+				
+			case '\r':
+				break;
+				
+			default:
+				if (++cursorX >= logicalColumns) {
+					cursorX = 0;
+					if (++cursorY >= rows) {
+						scrollByOneRow();
+					}
+				}
 		}
+		
 		repaintChar(cursorX, cursorY);
 	}
 
@@ -578,42 +658,49 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 			outputRaw(' ', attr, false);
 			outputRaw(' ', attr, false);
 			outputRaw(' ', attr, false);
-		} else if (c == '\r') {
-			; // do nothing
-		} else if (c == '\n') {
+			return;
+		} 
+		
+		if (c == '\r') {
+			return; // do nothing
+		}
+		
+		if (c == '\n') {
 			advance(c);
-		} else {
-			try {
-				int startingCursorX = this.cursorX;
-				int startingCursorY = this.cursorY;
-				chars[startingCursorY][startingCursorX] = c;
-				attributes[startingCursorY][startingCursorX] = attr;
-				advance(c);
+			return;
+		}
+		
+		// some other character
+		try {
+			int startingCursorX = this.cursorX;
+			int startingCursorY = this.cursorY;
+			chars[startingCursorY][startingCursorX] = c;
+			attributes[startingCursorY][startingCursorX] = attr;
+			advance(c);
 
-				if (!immediate) {
-					repaintChar(startingCursorX, startingCursorY);
-				} else {
-					paintImmediately(startingCursorX * charWidth, startingCursorY * charHeight, charWidth, charHeight);
+			if (!immediate) {
+				repaintChar(startingCursorX, startingCursorY);
+			} else {
+				paintImmediately(startingCursorX * charWidth, startingCursorY * charHeight, charWidth, charHeight);
 
-					paintImmediately(cursorX * charWidth, cursorY * charHeight, charWidth, charHeight);
-				}
-			} catch (ArrayIndexOutOfBoundsException e) { 
-				// can happen if thread was terminated in the middle of output
-				if (cursorX < 0) {
-					cursorX = 0;
-				} else if (cursorX >= logicalColumns) {
-					cursorX = logicalColumns - 1;
-				}
-
-				if (cursorY < 0) {
-					cursorY = 0;
-				} else if (cursorY >= rows) {
-					cursorY = rows - 1;
-				}
-
-				// cursor should be in valid location, try again
-				outputRaw(c, attr, false);
+				paintImmediately(cursorX * charWidth, cursorY * charHeight, charWidth, charHeight);
 			}
+		} catch (ArrayIndexOutOfBoundsException e) { 
+			// can happen if thread was terminated in the middle of output
+			if (cursorX < 0) {
+				cursorX = 0;
+			} else if (cursorX >= logicalColumns) {
+				cursorX = logicalColumns - 1;
+			}
+
+			if (cursorY < 0) {
+				cursorY = 0;
+			} else if (cursorY >= rows) {
+				cursorY = rows - 1;
+			}
+
+			// cursor should be in valid location, try again
+			outputRaw(c, attr, false);
 		}
 	}
 
@@ -708,27 +795,58 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		insertRow(rows - 1);
 
 		if (rows == oldRows) {
-			cursorY--; // otherwise, grid just got bigger & no need to move
-						// cursor
+			// otherwise, grid just got bigger & no need to move cursor
+			cursorY--;
 		}
 	}
 
-	protected void paintRun(Graphics g, int row, int start, int end, TerminalCharacterAttribute attributes) {
-		if (attributes == null) {
-			attributes = this.currentTextColor;
+	/**
+	 * Repaints the region of a row where all the columns specified between
+	 * start and end have the same {@link TerminalCharacterAttribute} i.e. all
+	 * characters have same foreground and background color.
+	 * 
+	 * @param graphics
+	 *            the {@link Graphics} instance to use
+	 * 
+	 * @param row
+	 *            the row at which to run the paint job
+	 * 
+	 * @param start
+	 *            the starting character
+	 * 
+	 * @param end
+	 *            the ending character
+	 * 
+	 * @param attribute
+	 *            the {@link TerminalCharacterAttribute} colors to use
+	 */
+	protected void paintRun(Graphics graphics, int row, int start, int end, TerminalCharacterAttribute attribute) {
+		if (attribute == null) {
+			attribute = this.currentTextColor;
 		}
 
 		int startX = start * charWidth;
 		int startY = row * charHeight;
-		Color background = attributes.getBackground();
-		if (!background.equals(this.currentTextColor.getBackground())) {
-			g.setColor(background);
-			g.fillRect(startX, startY, (end - start) * charWidth, charHeight);
+		Color foreground, background;
+		
+		if(!attribute.highlight) {
+			foreground = attribute.getForeground();
+			background = attribute.getBackground();
+		} else {
+			background = attribute.getForeground();
+			foreground = attribute.getBackground();
 		}
-		g.setColor(attributes.getForeground());
-		g.drawChars(chars[row], start, end - start, startX, startY + baseline);
+		
+		if (!background.equals(this.currentTextColor.getBackground())) {
+			graphics.setColor(background);
+			graphics.fillRect(startX, startY, (end - start) * charWidth, charHeight);
+		}
+		
+		graphics.setColor(foreground);
+		graphics.drawChars(chars[row], start, end - start, startX, startY + this.baseline);
 	}
 
+	@Override
 	public synchronized void repaint() {
 		dirtyRegion = new Rectangle(0, 0, getWidth(), getHeight());
 
@@ -747,6 +865,15 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		this.repaintChar(this.getCursorX(), this.getCursorY());
 	}
 
+	/**
+	 * Repaint a specific character on screen.
+	 * 
+	 * @param x
+	 *            the column at which the character is located
+	 * 
+	 * @param y
+	 *            the row at which the character is located
+	 */
 	public synchronized void repaintChar(int x, int y) {
 		if (dirtyRegion == null) {
 			dirtyRegion = new Rectangle(x, y, 1, 1);
@@ -759,6 +886,13 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		}
 	}
 
+	/**
+	 * Repaint the screen to display the contents.
+	 * 
+	 * @param graphics
+	 *            the {@link Graphics} instance to use
+	 */
+	@Override
 	public void paint(Graphics graphics) {
 		int startRow = 0;
 		int endRow = rows;
@@ -784,7 +918,7 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 			TerminalCharacterAttribute currentAttributes = this.currentTextColor;
 
 			for (int j = startColumn; j < endColumn; j++) {
-				if (currentAttributes != attributes[i][j]) {
+				if (currentAttributes != null && currentAttributes.notEquals(attributes[i][j])) {
 					if (start != j) {
 						paintRun(graphics, i, start, j, currentAttributes);
 					}
@@ -926,11 +1060,15 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		// TODO: optimize this
 		for (int i = 0; i < this.chars.length; i++) {
 			Arrays.fill(this.chars[i], ' ');
-			Arrays.fill(this.attributes[i], this.currentTextColor);
+			
+			TerminalCharacterAttribute[] row = this.attributes[i];
+			for(int j = 0; j < row.length; j++) {
+//				Arrays.fill(this.attributes[i], this.currentTextColor);
+				row[j] = this.currentTextColor.clone();
+			}
 		}
 
 		// move to top
-//		this.logicalRows = 0;
 		this.setCursorPosition(0, 0, false);
 		this.snapToTop = true;
 
@@ -947,6 +1085,49 @@ public class UITerminal extends JComponent implements TextWindow, Scrollable {
 		this.cursorTimer.stop();
 	}
 	
+	/**
+	 * Un-highlight the entire screen area of any previous mouse selection.
+	 * 
+	 */
+	public void unHighlight() {
+		for(int row = 0; row < this.rows; row++) {
+			for(int col = 0; col < this.columns; col++) {
+				TerminalCharacterAttribute attribute = this.attributes[row][col];
+				if(attribute != null) {
+					attribute.highlight = false;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Highlight a text-area selected by mouse, or otherwise to show that something is being
+	 * selected and might be copied to the clipboard for use.
+	 * 
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 */
+	public void highlightSelection(int x1, int y1, int x2, int y2) {
+		this.unHighlight();
+		
+		// now highlight the box
+		for(int row = y1; row <= y2; row++) {
+			for(int col = x1; col <= x2; col++) {
+				TerminalCharacterAttribute attribute = this.attributes[row][col];
+				if(attribute != null) {
+					attribute.highlight = true;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get the current text color.
+	 * 
+	 * @return
+	 */
 	public TerminalCharacterAttribute getTextColor() {
 		return this.currentTextColor;
 	}

@@ -35,38 +35,82 @@ public class TerminalCharacterAttribute {
     
     private final Color background;
     
-    private boolean highlight;
-
-    /** 
-     * Constructs a new <code>TextAttributes</code> with the specified foreground color
-     * and a black background.
-     *
-     *@param foreground the foreground color
-     *@throws NullPointerException if <code>foreground</code> is <code>null</code>
-     */
+    public boolean highlight;
+    
+    /**
+	 * Constructs a new <code>TextAttributes</code> with the specified
+	 * foreground color and a black background.
+	 *
+	 * @param foreground
+	 *            the foreground color
+	 *            
+	 * @throws NullPointerException
+	 *             if <code>foreground</code> is <code>null</code>
+	 */
     public TerminalCharacterAttribute(Color foreground) {
         this(foreground, Color.BLACK);
     }
         
-
-    /** 
-     * Constructs a new <code>TextAttributes</code> with the specified foreground and 
-     * background colors.
-     *
-     *@param foreground the foreground color
-     *@param background the background color
-     *@throws NullPointerException if either <code>foreground</code> or <code>background</code> are <code>null</code>
-     */
+    /**
+	 * Constructs a new <code>TextAttributes</code> with the specified
+	 * foreground and background colors.
+	 *
+	 * @param foreground
+	 *            the foreground color
+	 *            
+	 * @param background
+	 *            the background color
+	 *            
+	 * @throws NullPointerException
+	 *             if either <code>foreground</code> or <code>background</code>
+	 *             are <code>null</code>
+	 */
     public TerminalCharacterAttribute(Color foreground, Color background) {
-        if (foreground == null)
+        if (foreground == null) {
             throw new NullPointerException("foreground must be non-null");
-        if (background == null)
+        }
+        
+        if (background == null) {
             throw new NullPointerException("background must be non-null");
+        }
+        
         this.foreground = foreground;
         this.background = background;
     }
     
+    private TerminalCharacterAttribute(Color foreground, Color background, boolean highlight) {
+    	this.foreground = foreground;
+    	this.background = background;
+    	this.highlight = highlight;
+    }
     
+    @Override
+    protected TerminalCharacterAttribute clone() {
+    	return new TerminalCharacterAttribute(this.foreground, this.background, this.highlight);
+    }
+
+	public boolean notEquals(TerminalCharacterAttribute attribute) {
+		return !equals(attribute);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj) {
+			return true;
+		}
+		
+		if(obj == null) {
+			return false;
+		}
+		
+		if(!(obj instanceof TerminalCharacterAttribute)) {
+			return false;
+		}
+		
+		TerminalCharacterAttribute attribute = (TerminalCharacterAttribute) obj;
+		
+		return this.highlight == attribute.highlight && this.foreground.equals(attribute.foreground) && this.background.equals(attribute.background);
+	}    
     /** 
      * Returns the foreground color of this <code>TextAttributes</code>.
      *
@@ -111,4 +155,6 @@ public class TerminalCharacterAttribute {
 	public void setHighlight(boolean highlight) {
 		this.highlight = highlight;
 	}
+
+
 }

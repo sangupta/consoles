@@ -1,25 +1,30 @@
-consoles
-========
+# consoles
 
-Java-based implementations for various consoles (pure text, swing-emulated and rich-text) that implement a standard API and pave
-way for building better command-line tools in Java.
+Java-based implementations for various consoles types that implement a standard API and pave
+way for building better command-line tools in Java. The following console modes are currently
+available:
 
-Aim
----
+* Text: uses the underlying OS console for functionality
+* Ansi: enhances underlying OS console for ANSI compatible functionality
+* UI: a Swing based console that mimicks traditional consoles
+* Tabbed: a Swing based multi-tab console, builds over `UI` console type 
+* Remote: a remote console that connects to a server
+
+## Aim
+
 * JLine based pure console that works from a command-line shell of an operating system
 * Swing based UI console that mimicks the shell of an operating system
 * Consistent API for all console implementations
 
 **This library is in very nascent unstable stage and should NOT be used.**
 
-Features
---------
+## Features
+
 * Non-intrusive console implementation
 * Easy replacement for System.in, System.out, System.err and Console 
 * Support for mouse interactions to paste data 
 
-Versioning
-----------
+## Versioning
 
 For transparency and insight into our release cycle, and for striving to maintain backward compatibility, 
 `consoles` will be maintained under the Semantic Versioning guidelines as much as possible.
@@ -36,10 +41,9 @@ And constructed with the following guidelines:
 
 For more information on SemVer, please visit http://semver.org/.
 
-License
--------
+## License
 	
-Copyright (c) 2013, Sandeep Gupta
+Copyright (c) 2013-2016, Sandeep Gupta
 
 The project uses various other libraries that are subject to their
 own license terms. See the distribution libraries or the project

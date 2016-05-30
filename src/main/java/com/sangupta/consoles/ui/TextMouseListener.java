@@ -32,24 +32,31 @@ import java.util.EventListener;
  *@see TextMouseAdapter
  */
 public interface TextMouseListener extends EventListener {
+	
     /**
-     * Invoked when the mouse has been clicked on a <code>TextWindow</code>.
-     *
-     *@param e the <code>TextMouseEvent</code> object encapsulating the event
-     */
+	 * Invoked when the mouse has been clicked on a <code>TextWindow</code>.
+	 *
+	 * @param e
+	 *            the <code>TextMouseEvent</code> object encapsulating the event
+	 */
     void mouseClicked(TextMouseEvent e);
 
     /**
-     * Invoked when the mouse has been pressed on a <code>TextWindow</code>.
-     *
-     *@param e the <code>TextMouseEvent</code> object encapsulating the event
-     */
+	 * Invoked when the mouse has been pressed on a <code>TextWindow</code>.
+	 *
+	 * @param e
+	 *            the <code>TextMouseEvent</code> object encapsulating the event
+	 */
     void mousePressed(TextMouseEvent e);
 
     /**
-     * Invoked when the mouse has been released on a <code>TextWindow</code>.
-     *
-     *@param e the <code>TextMouseEvent</code> object encapsulating the event
-     */
+	 * Invoked when the mouse has been released on a <code>TextWindow</code>.
+	 *
+	 * @param e
+	 *            the <code>TextMouseEvent</code> object encapsulating the event
+	 */
     void mouseReleased(TextMouseEvent e);
+    
+    void mouseDragged(TextMouseEvent e);
+    
 }

@@ -26,7 +26,7 @@ import java.awt.GraphicsEnvironment;
 
 public class FontUtils {
 	
-	private static final String[] fontsToLookFor = {
+	private static final String[] FONT_TO_LOOK_FOR = {
 //														"Monospaced"
 //		  											  , "Consolas"
 //													  , "Monaco"
@@ -45,7 +45,7 @@ public class FontUtils {
         
         String fontFound = null;
         for(String fontName : fonts) {
-        	for(String name : fontsToLookFor) {
+        	for(String name : FONT_TO_LOOK_FOR) {
         		if(name.equals(fontName)) {
         			fontFound = name;
         			break;

@@ -26,6 +26,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jline.console.ConsoleReader;
 
 import com.sangupta.consoles.core.AbstractConsole;
@@ -41,6 +44,8 @@ import com.sangupta.consoles.core.WriterOutputStream;
  *
  */
 public class AnsiConsole extends AbstractConsole {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AnsiConsole.class);
 
 	/**
 	 * The JLine based {@link ConsoleReader} instance unique to this console
@@ -61,7 +66,7 @@ public class AnsiConsole extends AbstractConsole {
 			
 			this.myOutputStream = new WriterOutputStream(this.getWriter());
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error("Unable to construct AnsiConsole", e);
 		}
 	}
 
@@ -71,7 +76,7 @@ public class AnsiConsole extends AbstractConsole {
 			this.consoleReader.clearScreen();
 			this.consoleReader.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error("Unable to clear screen", e);
 		}
 	}
 	
